@@ -1,14 +1,15 @@
 use actix_web::{get, HttpResponse, HttpServer, Responder};
 
-use crate::models::response::Diagnostic;
+use crate::models::response::{Diagnostic, ResponseBodyNoData};
 
 mod models;
+mod config;
 
 #[get("/api/healthchecker")]
 async fn healthchecker() -> impl Responder {
     const MESSAGE: &str = "Hello, Lzyct";
 
-    HttpResponse::Ok().json(Diagnostic::new("Ok", MESSAGE))
+    HttpResponse::Ok().json(ResponseBodyNoData::new(Diagnostic::new("200", MESSAGE)))
 }
 
 

@@ -18,6 +18,20 @@ impl Diagnostic {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ResponseBodyNoData {
+    pub diagnostic: Diagnostic,
+}
+
+impl ResponseBodyNoData {
+    pub fn new(diagnostic: Diagnostic) -> ResponseBodyNoData {
+        ResponseBodyNoData {
+            diagnostic,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ResponseBody<T> {
     pub diagnostic: Diagnostic,
     pub data: T,
@@ -35,19 +49,21 @@ impl<T> ResponseBody<T> {
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Page<T> {
+    pub diagnostic: Diagnostic,
+    pub data: Vec<T>,
     pub page_number: i32,
     pub page_size: i32,
     pub total: i64,
-    pub data: Vec<T>,
 }
 
 impl<T> Page<T> {
-    pub fn new(page_number: i32, page_size: i32, total: i64, data: Vec<T>) -> Page<T> {
+    pub fn new(page_number: i32, page_size: i32, total: i64, data: Vec<T>, diagnostic: Diagnostic) -> Page<T> {
         Page {
             page_number,
             page_size,
             total,
             data,
+            diagnostic,
         }
     }
 }

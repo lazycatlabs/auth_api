@@ -1,6 +1,7 @@
 -- Your SQL goes here
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE users (
-    id UUID NOT NULL PRIMARY KEY,
+    id UUID NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     photo VARCHAR NOT NULL DEFAULT 'default.png',

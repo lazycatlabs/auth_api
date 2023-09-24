@@ -3,7 +3,7 @@ use actix_web::{HttpResponse, web};
 use crate::{
     config::db::Pool,
     constants,
-    errors::user::ServiceError,
+    error::ServiceError,
     models::{
         response::{Diagnostic, ResponseBody},
         user::{User, UserDTO},

@@ -8,7 +8,7 @@ use validator::Validate;
 
 use crate::{
     config::db::Connection,
-    errors::user::ServiceError,
+    error::ServiceError,
     schema::users::{self},
 };
 

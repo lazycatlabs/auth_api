@@ -40,7 +40,7 @@ impl error::ResponseError for ServiceError {
             .insert_header(ContentType::json())
             .json(ResponseBodyNoData::new(
                 Diagnostic::new(
-                    &self.status_code().to_string(),
+                    &self.status_code().as_u16().to_string(),
                     &self.to_string()))
             )
     }

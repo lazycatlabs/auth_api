@@ -9,7 +9,7 @@ use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::errors::user::ServiceError;
+use crate::error::ServiceError;
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {

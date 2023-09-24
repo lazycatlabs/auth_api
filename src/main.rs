@@ -9,9 +9,9 @@ use crate::config::db::Config;
 mod models;
 mod schema;
 mod config;
-mod errors;
 mod api;
 mod constants;
+mod error;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

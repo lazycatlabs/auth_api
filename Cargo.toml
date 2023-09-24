@@ -13,10 +13,13 @@ actix-rt = "2.9.0"
 serde_json = "1.0.107"
 env_logger = "0.10.0"
 dotenv = "0.15.0"
+dotenv_codegen = "0.15.0"
 jsonwebtoken = "8.3.0"
 argon2 = "0.5.2"
-
+derive_more = "0.99.17"
+futures-util = "0.3.28"
 cargo-watch = "8.4.1"
+diesel_migrations = "2.1.0"
 
 [dependencies.diesel]
 version = "2.1.1"
@@ -33,3 +36,7 @@ features = ["serde"]
 [dependencies.uuid]
 version = "1.4.1"
 features = ["serde", "v4"]
+
+[dependencies.validator]
+version = "0.16.1"
+features = ["derive"]

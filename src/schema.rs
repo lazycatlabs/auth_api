@@ -4,9 +4,9 @@ diesel::table! {
     users (id) {
         id -> Uuid,
         #[max_length = 255]
-        name -> Varchar,
-        #[max_length = 255]
         email -> Varchar,
+        #[max_length = 255]
+        name -> Varchar,
         photo -> Varchar,
         verified -> Bool,
         #[max_length = 255]

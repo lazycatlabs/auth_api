@@ -11,12 +11,12 @@ This is a simple API that allows you to create users and authenticate them using
 - [ ] Register
 - [ ] Login
 - [ ] Login with Social
-- [ ] Get user
+- [ ] Get Account
 - [ ] Logout
 - [ ] Refresh token
 - [ ] Forgot password
 - [ ] Reset password
 - [ ] Email verification
-- [ ] Tests
+- [ ] Create Tests
 
 

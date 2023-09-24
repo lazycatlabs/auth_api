@@ -20,16 +20,17 @@ impl Config {
 }
 
 // database configuration
-pub type PostgresPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+pub type Pool = r2d2::Pool<ConnectionManager<Connection>>;
+pub type Connection = PgConnection;
 
-pub fn init_db_pool(url: &str) -> PostgresPool {
-    let con_manager = ConnectionManager::<PgConnection>::new(url);
+pub fn init_db_pool(url: &str) -> Pool {
+    let con_manager = ConnectionManager::<Connection>::new(url);
 
-    r2d2::Pool::builder()
+    Pool::builder()
         .build(con_manager)
         .expect("Could not build connection pool.")
 }
 
-pub fn run_migration(conn: &mut PgConnection) {
+pub fn run_migration(conn: &mut Connection) {
     conn.run_pending_migrations(MIGRATIONS).expect("Could not run migrations");
 }

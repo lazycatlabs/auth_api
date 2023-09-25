@@ -16,11 +16,11 @@ dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
 jsonwebtoken = "8.3.0"
 rand = "0.8.5"
-rust-argon2 = "2.0.0"
 derive_more = "0.99.17"
 futures-util = "0.3.28"
 cargo-watch = "8.4.1"
 diesel_migrations = "2.1.0"
+bcrypt = "0.15.0"
 
 [dependencies.diesel]
 version = "2.1.1"

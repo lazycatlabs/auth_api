@@ -1,7 +1,6 @@
-use argon2::Config;
+use bcrypt::{DEFAULT_COST, hash};
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
-use rand::random;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
@@ -62,11 +61,9 @@ impl User {
         }
     }
 
-    pub fn hash_password(&mut self) -> Result<(), ServiceError> {
-        let salt: [u8; 32] = random();
-        let cfg = Config::default();
 
-        if let Ok(hashed_password) = argon2::hash_encoded(self.password.as_bytes(), &salt, &cfg) {
+    fn hash_password(&mut self) -> Result<(), ServiceError> {
+        if let Ok(hashed_password) = hash(&self.password.as_bytes(), DEFAULT_COST) {
             self.password = hashed_password;
             Ok(())
         } else {

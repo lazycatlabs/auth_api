@@ -1,19 +1,18 @@
-use std::pin::Pin;
-
-use actix_web::{FromRequest, HttpRequest};
-use actix_web::dev::Payload;
+use actix_web::{HttpRequest, web};
+use actix_web::http::header::HeaderValue;
 use chrono::Utc;
 use dotenv_codegen::dotenv;
-use futures_util::Future;
-use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
+use crate::config::db::Pool;
 use crate::error::ServiceError;
-use crate::models::user::LoginInfoDTO;
+use crate::models::user::{LoginInfoDTO, User};
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
-    pub jti: String,
+    pub jti: Uuid,
     // audience
     pub aud: String,
     // issued at
@@ -43,7 +42,7 @@ impl UserToken {
         let now = Utc::now().timestamp();
         let exp = now + 1000 * 60 * 60 * 24 * 7; // 7 days
         let payload = UserToken {
-            jti: login.id.clone(),
+            jti: login.id.parse().unwrap(),
             aud: dotenv!("CLIENT_ID").to_string(),
             iat: now,
             exp,
@@ -56,25 +55,27 @@ impl UserToken {
         ).map_err(|_e| ServiceError::InternalError)
     }
 
-    pub fn decode_token(jwt: &String) -> Result<Self, ServiceError> {
+    pub fn decode_token(jwt: &String) -> Result<TokenData<UserToken>, ServiceError> {
         jsonwebtoken::decode::<UserToken>(
             jwt,
             &DecodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(),
             &Validation::new(Algorithm::RS256),
-        )
-            .and_then(|token| Ok(token.claims))
-            .map_err(|_e| ServiceError::Unauthorized)
+        ).map_err(|_e| ServiceError::Unauthorized)
     }
 
-    pub fn verify_token(jwt: &String) -> Result<Self, ServiceError> {
-        let mut validation = Validation::new(Algorithm::RS256);
-        validation.validate_exp = false;
+    pub fn verify_token(jwt: &TokenData<UserToken>, pool: &web::Data<Pool>) -> Result<Uuid, String> {
+        if User::is_valid_login_session(&jwt.claims, &mut pool.get().unwrap()) {
+            Ok(jwt.claims.jti)
+        } else {
+            Err("Invalid token".to_string())
+        }
+    }
 
-        jsonwebtoken::decode::<UserToken>(
-            jwt,
-            &DecodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(), &validation)
-            .and_then(|token| Ok(token.claims))
-            .map_err(|_e| ServiceError::Unauthorized)
+    pub fn is_auth_header_valid(auth_header: &HeaderValue) -> bool {
+        if let Ok(auth_str) = auth_header.to_str() {
+            return auth_str.starts_with("bearer") || auth_str.starts_with("Bearer");
+        }
+        false
     }
 
     pub fn parse_jwt_from_request(request: &HttpRequest) -> Result<String, ServiceError> {
@@ -99,20 +100,20 @@ impl UserToken {
     }
 }
 
-impl FromRequest for UserToken {
-    type Error = ServiceError;
-
-    type Future = Pin<Box<dyn Future<Output=Result<UserToken, Self::Error>>>>;
-
-    fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-        if let Ok(jwt) = UserToken::parse_jwt_from_request(request) {
-            if let Ok(user_token) = UserToken::verify_token(&jwt) {
-                println!("TOKEN {}", user_token.jti);
-                return Box::pin(async move { Ok(user_token) });
-            }
-        }
-        Box::pin(async move { Err(ServiceError::Unauthorized) })
-    }
-}
-
+// impl FromRequest for UserToken {
+//     type Error = ServiceError;
+//
+//     type Future = Pin<Box<dyn Future<Output=Result<UserToken, Self::Error>>>>;
+//
+//     fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+//         if let Ok(jwt) = UserToken::parse_jwt_from_request(request) {
+//             if let Ok(user_token) = UserToken::verify_token(&jwt) {
+//                 println!("TOKEN {}", user_token);
+//                 return Box::pin(async move { Ok(user_token) });
+//             }
+//         }
+//         Box::pin(async move { Err(ServiceError::Unauthorized) })
+//     }
+// }
+//
 

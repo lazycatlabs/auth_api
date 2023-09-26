@@ -17,6 +17,10 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                         web::resource("/login")
                             .route(web::post().to(account_controller::login)),
                     )
+                    .service(
+                        web::resource("/logout")
+                            .route(web::post().to(account_controller::logout)),
+                    )
             )
     );
 }

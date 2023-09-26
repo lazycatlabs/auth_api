@@ -12,6 +12,7 @@ use crate::{
     models::login_history::LoginHistory,
     schema::users::{self, dsl::*},
 };
+use crate::models::jwt::UserToken;
 
 #[derive(Queryable, Serialize, Deserialize, Insertable)]
 #[table_name = "users"]
@@ -78,13 +79,13 @@ impl User {
         {
             if !user_verify.password.is_empty()
                 && verify(&login.password, &user_verify.password).unwrap() {
-                if let Ok(login_history) = LoginHistory::create(&user_verify.email, conn) {
+                if let Ok(login_history) = LoginHistory::create(&user_verify.id, conn) {
                     if LoginHistory::save_login_history(login_history, conn).is_err() {
                         return Err(ServiceError::InternalError);
                     }
                     let login_session_str = User::generate_login_session();
                     if User::update_login_session_to_db(
-                        &user_verify.email,
+                        &user_verify.id,
                         &login_session_str,
                         conn,
                     ) {
@@ -102,9 +103,15 @@ impl User {
         Err(ServiceError::InvalidCredentials)
     }
 
-    pub fn find_user_by_email(user_email: &str, conn: &mut Connection) -> Result<Self, ServiceError> {
+    pub fn logout(user_id: Uuid, conn: &mut Connection) {
+        if let Ok(user) = users::table.find(user_id).get_result::<User>(conn) {
+            Self::update_login_session_to_db(&user.id, "", conn);
+        }
+    }
+
+    pub fn find_user_by_id(user_id: &Uuid, conn: &mut Connection) -> Result<Self, ServiceError> {
         match users::table
-            .filter(email.eq(user_email))
+            .filter(id.eq(user_id))
             .get_result::<User>(conn)
         {
             Ok(user) => Ok(user),
@@ -113,11 +120,11 @@ impl User {
     }
 
     fn update_login_session_to_db(
-        user_email: &str,
+        user_id: &Uuid,
         login_session_str: &str,
         conn: &mut Connection,
     ) -> bool {
-        if let Ok(user) = User::find_user_by_email(user_email, conn) {
+        if let Ok(user) = User::find_user_by_id(user_id, conn) {
             diesel::update(users.find(user.id))
                 .set(login_session.eq(login_session_str.to_string()))
                 .execute(conn)
@@ -129,6 +136,15 @@ impl User {
     fn generate_login_session() -> String {
         Uuid::new_v4().to_string()
     }
+
+    pub fn is_valid_login_session(user_token: &UserToken, conn: &mut Connection) -> bool {
+        users
+            .filter(id.eq(&user_token.jti))
+            .filter(login_session.eq(&user_token.login_session))
+            .get_result::<User>(conn)
+            .is_ok()
+    }
+
 
     fn hash_password(&mut self) -> Result<(), ServiceError> {
         if let Ok(hashed_password) = hash(&self.password.as_bytes(), DEFAULT_COST) {

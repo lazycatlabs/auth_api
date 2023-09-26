@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{HttpRequest, HttpResponse, web};
 
 use crate::{
     config::db::Pool,
@@ -36,5 +36,21 @@ pub async fn login(
             token_response,
         ))),
         Err(err) => Err(err)
+    }
+}
+
+pub async fn logout(
+    req: HttpRequest,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, ServiceError> {
+    if let Some(auth_header) = req.headers().get(AUTHORIZATION) {
+        let _ = account_service::logout(auth_header, &pool);
+        Ok(HttpResponse::Ok().json(ResponseBodyNoData::new(
+            Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
+        )))
+    } else {
+        Err(ServiceError::BadRequest {
+            message: MESSAGE_TOKEN_MISSING.to_string()
+        })
     }
 }

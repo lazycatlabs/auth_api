@@ -26,8 +26,8 @@ pub struct LoginHistoryDTO {
 }
 
 impl LoginHistory {
-    pub fn create(user_email: &str, conn: &mut Connection) -> Result<LoginHistoryDTO, ServiceError> {
-        if let Ok(user) = User::find_user_by_email(user_email, conn) {
+    pub fn create(user_id: &Uuid, conn: &mut Connection) -> Result<LoginHistoryDTO, ServiceError> {
+        if let Ok(user) = User::find_user_by_id(user_id, conn) {
             let now = Utc::now().naive_utc();
             Ok(LoginHistoryDTO {
                 user_id: user.id,

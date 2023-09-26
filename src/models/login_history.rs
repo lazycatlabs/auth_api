@@ -1,0 +1,53 @@
+use chrono::{NaiveDateTime, Utc};
+use diesel::{Associations, Identifiable, Insertable, Queryable, RunQueryDsl};
+use uuid::Uuid;
+
+use crate::{
+    config::db::Connection,
+    models::user::User,
+    schema::login_history,
+};
+use crate::error::ServiceError;
+
+#[derive(Identifiable, Associations, Queryable)]
+#[belongs_to(User)]
+#[table_name = "login_history"]
+pub struct LoginHistory {
+    pub id: i32,
+    pub user_id: Uuid,
+    pub login_timestamp: NaiveDateTime,
+}
+
+#[derive(Insertable)]
+#[table_name = "login_history"]
+pub struct LoginHistoryDTO {
+    pub user_id: Uuid,
+    pub login_timestamp: NaiveDateTime,
+}
+
+impl LoginHistory {
+    pub fn create(user_email: &str, conn: &mut Connection) -> Result<LoginHistoryDTO, ServiceError> {
+        if let Ok(user) = User::find_user_by_email(user_email, conn) {
+            let now = Utc::now().naive_utc();
+            Ok(LoginHistoryDTO {
+                user_id: user.id,
+                login_timestamp: now,
+            })
+        } else {
+            Err(ServiceError::UserNotFoundError)
+        }
+    }
+
+    pub fn save_login_history(
+        login_history_dto: LoginHistoryDTO,
+        conn: &mut Connection,
+    ) -> Result<usize, ServiceError> {
+        match diesel::insert_into(login_history::table)
+            .values(&login_history_dto)
+            .execute(conn)
+        {
+            Ok(data) => Ok(data),
+            Err(_) => Err(ServiceError::InternalError)
+        }
+    }
+}

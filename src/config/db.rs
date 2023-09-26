@@ -25,7 +25,6 @@ pub type Connection = PgConnection;
 
 pub fn init_db_pool(url: &str) -> Pool {
     let con_manager = ConnectionManager::<Connection>::new(url);
-
     Pool::builder()
         .build(con_manager)
         .expect("Could not build connection pool.")

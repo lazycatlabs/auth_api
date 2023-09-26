@@ -1,4 +1,4 @@
-use bcrypt::{DEFAULT_COST, hash};
+use bcrypt::{DEFAULT_COST, hash, verify};
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -7,22 +7,25 @@ use validator::Validate;
 
 use crate::{
     config::db::Connection,
+    constants::MESSAGE_SUCCESS,
     error::ServiceError,
-    schema::users::{self},
+    models::login_history::LoginHistory,
+    schema::users::{self, dsl::*},
 };
 
 #[derive(Queryable, Serialize, Deserialize, Insertable)]
 #[table_name = "users"]
 #[serde(rename_all = "camelCase")]
 pub struct User {
-    id: Uuid,
-    name: String,
+    pub id: Uuid,
     email: String,
+    name: String,
     photo: String,
     verified: bool,
     #[serde(skip_serializing)]
     password: String,
     role: String,
+    login_session: String,
     created_at: NaiveDateTime,
     updated_at: NaiveDateTime,
 }
@@ -43,24 +46,89 @@ pub struct LoginDTO {
     pub password: String,
 }
 
+#[derive(Serialize, Deserialize)]
+pub struct LoginInfoDTO {
+    pub email: String,
+    pub login_session: String,
+}
+
 impl User {
-    pub fn signup(new_user: UserDTO, conn: &mut Connection) -> Result<Self, ServiceError> {
+    pub fn signup(new_user: UserDTO, conn: &mut Connection) -> Result<String, String> {
         let mut user = User::from(new_user);
         let _ = user.hash_password();
 
         match diesel::insert_into(users::table)
             .values(&user)
-            .get_result(conn)
+            .execute(conn)
         {
-            Ok(user) => Ok(user),
+            Ok(_) => Ok(MESSAGE_SUCCESS.to_string()),
             Err(diesel::result::Error::DatabaseError(
                     diesel::result::DatabaseErrorKind::UniqueViolation,
                     _,
-                )) => Err(ServiceError::EmailAlreadyExistsError { email: user.email }),
-            Err(_) => Err(ServiceError::InternalError)
+                )) => Err(format!("Email '{}' already exists.", user.email)),
+            Err(_) => Err("MESSAGE_INTERNAL_ERROR".to_string()),
         }
     }
 
+    pub fn login(login: LoginDTO, conn: &mut Connection) -> Result<LoginInfoDTO, ServiceError> {
+        if let Ok(user_verify) = users::table
+            .filter(email.eq(&login.email))
+            .get_result::<User>(conn)
+        {
+            if !user_verify.password.is_empty()
+                && verify(&login.password, &user_verify.password).unwrap() {
+                if let Ok(login_history) = LoginHistory::create(&user_verify.email, conn) {
+                    if LoginHistory::save_login_history(login_history, conn).is_err() {
+                        return Err(ServiceError::InternalError);
+                    }
+                    let login_session_str = User::generate_login_session();
+                    if User::update_login_session_to_db(
+                        &user_verify.email,
+                        &login_session_str,
+                        conn,
+                    ) {
+                        return Ok(LoginInfoDTO {
+                            email: user_verify.email,
+                            login_session: login_session_str,
+                        });
+                    }
+                }
+            }
+
+
+            return Err(ServiceError::InvalidCredentials);
+        }
+
+        Err(ServiceError::InvalidCredentials)
+    }
+
+    pub fn find_user_by_email(user_email: &str, conn: &mut Connection) -> Result<Self, ServiceError> {
+        match users::table
+            .filter(email.eq(user_email))
+            .get_result::<User>(conn)
+        {
+            Ok(user) => Ok(user),
+            Err(_) => Err(ServiceError::UserNotFoundError),
+        }
+    }
+
+    fn update_login_session_to_db(
+        user_email: &str,
+        login_session_str: &str,
+        conn: &mut Connection,
+    ) -> bool {
+        if let Ok(user) = User::find_user_by_email(user_email, conn) {
+            diesel::update(users.find(user.id))
+                .set(login_session.eq(login_session_str.to_string()))
+                .execute(conn)
+                .is_ok()
+        } else {
+            false
+        }
+    }
+    fn generate_login_session() -> String {
+        Uuid::new_v4().to_string()
+    }
 
     fn hash_password(&mut self) -> Result<(), ServiceError> {
         if let Ok(hashed_password) = hash(&self.password.as_bytes(), DEFAULT_COST) {
@@ -83,6 +151,7 @@ impl From<UserDTO> for User {
             role: String::from("user"),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
+            login_session: String::from(""),
             photo: String::from("default.png"),
             verified: false,
         }

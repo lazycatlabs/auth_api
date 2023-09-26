@@ -12,6 +12,7 @@ mod config;
 mod api;
 mod constants;
 mod error;
+mod services;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

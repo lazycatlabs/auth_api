@@ -7,18 +7,18 @@ use dotenv_codegen::dotenv;
 use futures_util::Future;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::error::ServiceError;
+use crate::models::user::LoginInfoDTO;
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
-    pub id: Uuid,
     pub email: String,
     // issued at
     pub iat: i64,
     // expiration
     pub exp: i64,
+    pub login_session: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -37,12 +37,12 @@ impl JWTResponse {
 }
 
 impl UserToken {
-    pub fn generate_token(user_id: &Uuid, email: &String) -> Result<String, ServiceError> {
+    pub fn generate_token(login: &LoginInfoDTO) -> Result<String, ServiceError> {
         let now = Utc::now().timestamp();
         let exp = now + 1000 * 60 * 60 * 24 * 7; // 7 days
         let payload = UserToken {
-            id: user_id.clone(),
-            email: email.clone(),
+            login_session: login.login_session.clone(),
+            email: login.email.clone(),
             iat: now,
             exp,
         };
@@ -104,7 +104,7 @@ impl FromRequest for UserToken {
     fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         if let Ok(jwt) = UserToken::parse_jwt_from_request(request) {
             if let Ok(user_token) = UserToken::verify_token(&jwt) {
-                println!("TOKEN {}", user_token.id);
+                println!("TOKEN {}", user_token.email);
                 return Box::pin(async move { Ok(user_token) });
             }
         }

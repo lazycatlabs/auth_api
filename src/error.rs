@@ -15,8 +15,6 @@ pub enum ServiceError {
     InvalidCredentials,
     #[display(fmt = "User does not exist.")]
     UserNotFoundError,
-    #[display(fmt = "Email {} is already taken.", email)]
-    EmailAlreadyExistsError { email: String },
     #[display(fmt = "An internal error occurred. Please try again later.")]
     InternalError,
     #[display(fmt = "{}", message)]
@@ -26,7 +24,6 @@ pub enum ServiceError {
 impl error::ResponseError for ServiceError {
     fn status_code(&self) -> StatusCode {
         match *self {
-            ServiceError::EmailAlreadyExistsError { .. } => StatusCode::BAD_REQUEST,
             ServiceError::BadRequest { .. } => StatusCode::BAD_REQUEST,
             ServiceError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             ServiceError::Unauthorized => StatusCode::UNAUTHORIZED,

@@ -30,7 +30,7 @@ pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<TokenBodyResponse
         Ok(logged_user) => {
             let generate_token_str = UserToken::generate_token(&logged_user).unwrap();
             match serde_json::from_value(
-                json!({ "token": generate_token_str, "tokenType": "bearer" }),
+                json!({ "token": generate_token_str, "tokenType": "Bearer" }),
             ) {
                 Ok(token_res) => {
                     if logged_user.login_session.is_empty() {

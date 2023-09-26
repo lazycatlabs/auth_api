@@ -48,6 +48,7 @@ pub struct LoginDTO {
 
 #[derive(Serialize, Deserialize)]
 pub struct LoginInfoDTO {
+    pub id: String,
     pub email: String,
     pub login_session: String,
 }
@@ -88,14 +89,13 @@ impl User {
                         conn,
                     ) {
                         return Ok(LoginInfoDTO {
+                            id: user_verify.id.to_string(),
                             email: user_verify.email,
                             login_session: login_session_str,
                         });
                     }
                 }
             }
-
-
             return Err(ServiceError::InvalidCredentials);
         }
 

@@ -13,7 +13,9 @@ use crate::models::user::LoginInfoDTO;
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
-    pub email: String,
+    pub jti: String,
+    // audience
+    pub aud: String,
     // issued at
     pub iat: i64,
     // expiration
@@ -41,35 +43,36 @@ impl UserToken {
         let now = Utc::now().timestamp();
         let exp = now + 1000 * 60 * 60 * 24 * 7; // 7 days
         let payload = UserToken {
-            login_session: login.login_session.clone(),
-            email: login.email.clone(),
+            jti: login.id.clone(),
+            aud: dotenv!("CLIENT_ID").to_string(),
             iat: now,
             exp,
+            login_session: login.login_session.clone(),
         };
         jsonwebtoken::encode(
-            &Header::default(),
+            &Header::new(Algorithm::RS256),
             &payload,
-            &EncodingKey::from_secret(dotenv!("JWT_SECRET").as_ref()),
+            &EncodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(),
         ).map_err(|_e| ServiceError::InternalError)
     }
 
     pub fn decode_token(jwt: &String) -> Result<Self, ServiceError> {
         jsonwebtoken::decode::<UserToken>(
             jwt,
-            &DecodingKey::from_secret(dotenv!("JWT_SECRET").as_ref()),
-            &Validation::new(Algorithm::HS256),
+            &DecodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(),
+            &Validation::new(Algorithm::RS256),
         )
             .and_then(|token| Ok(token.claims))
             .map_err(|_e| ServiceError::Unauthorized)
     }
 
     pub fn verify_token(jwt: &String) -> Result<Self, ServiceError> {
-        let mut validation = Validation::new(Algorithm::HS256);
+        let mut validation = Validation::new(Algorithm::RS256);
         validation.validate_exp = false;
 
         jsonwebtoken::decode::<UserToken>(
             jwt,
-            &DecodingKey::from_secret(dotenv!("JWT_SECRET").as_ref()), &validation)
+            &DecodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(), &validation)
             .and_then(|token| Ok(token.claims))
             .map_err(|_e| ServiceError::Unauthorized)
     }
@@ -104,7 +107,7 @@ impl FromRequest for UserToken {
     fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         if let Ok(jwt) = UserToken::parse_jwt_from_request(request) {
             if let Ok(user_token) = UserToken::verify_token(&jwt) {
-                println!("TOKEN {}", user_token.email);
+                println!("TOKEN {}", user_token.jti);
                 return Box::pin(async move { Ok(user_token) });
             }
         }

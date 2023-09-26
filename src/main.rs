@@ -4,8 +4,6 @@ use actix_cors::Cors;
 use actix_web::{App, http::header, HttpServer, middleware::Logger, web};
 use dotenv::dotenv;
 
-use crate::config::db::Config;
-
 mod models;
 mod schema;
 mod config;
@@ -22,7 +20,6 @@ async fn main() -> std::io::Result<()> {
 
     dotenv().ok();
     env_logger::init();
-    Config::init();
 
     let app_host = env::var("APP_HOST").unwrap_or(String::from("127.0.0.1"));
     let app_port = env::var("APP_PORT").unwrap_or(String::from("8080"));

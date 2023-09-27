@@ -16,12 +16,12 @@ This is a simple API that allows you to create users and authenticate them using
 ## TODO
 
 - [ ] General Token
-- [x] Auth Token
+- [ ] Auth Token
 - [ ] Register
 - [ ] Login
 - [ ] Login with Social
 - [ ] Get Account
-- [ ] Logout
+- [x] Logout
 - [ ] Refresh token
 - [ ] Forgot password
 - [ ] Reset password

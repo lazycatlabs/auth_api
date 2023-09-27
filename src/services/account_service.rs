@@ -1,19 +1,14 @@
 use actix_web::http::header::HeaderValue;
 use actix_web::web;
-use serde::{Deserialize, Serialize};
-use serde_json::json;
 
-use crate::{config::db::Pool, constants, error::ServiceError, models::{
+use crate::
+{config::db::Pool,
+ constants::*,
+ error::ServiceError, models::{
     jwt::UserToken,
     user::{LoginDTO, User, UserDTO},
 }};
-
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct TokenBodyResponse {
-    pub token: String,
-    pub token_type: String,
-}
+use crate::models::jwt::JWTResponse;
 
 pub fn signup(user_new: UserDTO, pool: &web::Data<Pool>) -> Result<String, ServiceError> {
     match User::signup(user_new, &mut pool.get().unwrap()) {
@@ -22,18 +17,16 @@ pub fn signup(user_new: UserDTO, pool: &web::Data<Pool>) -> Result<String, Servi
     }
 }
 
-pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<TokenBodyResponse, ServiceError> {
+pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<JWTResponse, ServiceError> {
     match User::login(user, &mut pool.get().unwrap()) {
         Ok(logged_user) => {
-            let generate_token_str = UserToken::generate_token(&logged_user).unwrap();
-            match serde_json::from_value(
-                json!({ "token": generate_token_str, "tokenType": "Bearer" }),
-            ) {
+            let generate_token_str = UserToken::generate_token(&logged_user);
+            match generate_token_str {
                 Ok(token_res) => {
                     if logged_user.login_session.is_empty() {
                         Err(ServiceError::Unauthorized)
                     } else {
-                        Ok(token_res)
+                        Ok(JWTResponse::new(token_res))
                     }
                 }
                 Err(_) => Err(ServiceError::InternalError),
@@ -54,12 +47,14 @@ pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), S
                         return Ok(());
                     }
                 }
+            } else {
+                return Err(ServiceError::Unauthorized);
             }
         } else {
             return Err(ServiceError::BadRequest {
-                message: constants::MESSAGE_BAD_REQUEST.to_string(),
+                message: MESSAGE_BAD_REQUEST.to_string(),
             });
         }
     }
-    Err(ServiceError::InternalError)
+    return Err(ServiceError::Unauthorized);
 }

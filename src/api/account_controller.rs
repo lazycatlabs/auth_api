@@ -44,10 +44,12 @@ pub async fn logout(
     pool: web::Data<Pool>,
 ) -> Result<HttpResponse, ServiceError> {
     if let Some(auth_header) = req.headers().get(AUTHORIZATION) {
-        let _ = account_service::logout(auth_header, &pool);
-        Ok(HttpResponse::Ok().json(ResponseBodyNoData::new(
-            Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
-        )))
+        match account_service::logout(auth_header, &pool) {
+            Ok(_) => Ok(HttpResponse::Ok().json(ResponseBodyNoData::new(
+                Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
+            ))),
+            Err(err) => Err(err)
+        }
     } else {
         Err(ServiceError::BadRequest {
             message: MESSAGE_TOKEN_MISSING.to_string()

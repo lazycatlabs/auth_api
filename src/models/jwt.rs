@@ -1,5 +1,6 @@
 use actix_web::{HttpRequest, web};
 use actix_web::http::header::HeaderValue;
+use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use dotenv_codegen::dotenv;
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation};
@@ -23,6 +24,7 @@ pub struct UserToken {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct JWTResponse {
     pub token: String,
     pub token_type: String,
@@ -32,13 +34,15 @@ impl JWTResponse {
     pub fn new(token: String) -> Self {
         Self {
             token,
-            token_type: "bearer".to_string(),
+            token_type: "Bearer".to_string(),
         }
     }
 }
 
 impl UserToken {
     pub fn generate_token(login: &LoginInfoDTO) -> Result<String, ServiceError> {
+        let bytes_private_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PRIVATE_KEY")).unwrap();
+        let decoded_private_key = String::from_utf8(bytes_private_key).unwrap();
         let now = Utc::now().timestamp();
         let exp = now + 1000 * 60 * 60 * 24 * 7; // 7 days
         let payload = UserToken {
@@ -51,14 +55,16 @@ impl UserToken {
         jsonwebtoken::encode(
             &Header::new(Algorithm::RS256),
             &payload,
-            &EncodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(),
+            &EncodingKey::from_rsa_pem(decoded_private_key.as_bytes()).unwrap(),
         ).map_err(|_e| ServiceError::InternalError)
     }
 
     pub fn decode_token(jwt: &String) -> Result<TokenData<UserToken>, ServiceError> {
+        let bytes_public_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY")).unwrap();
+        let decoded_public_key = String::from_utf8(bytes_public_key).unwrap();
         jsonwebtoken::decode::<UserToken>(
             jwt,
-            &DecodingKey::from_rsa_pem(include_bytes!("../private.pem")).unwrap(),
+            &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
             &Validation::new(Algorithm::RS256),
         ).map_err(|_e| ServiceError::Unauthorized)
     }

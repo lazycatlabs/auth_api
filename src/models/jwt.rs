@@ -33,7 +33,7 @@ pub struct JWTResponse {
 impl JWTResponse {
     pub fn new(token: String) -> Self {
         Self {
-            token,
+            token: format!("{}.{}", dotenv!("TOKEN_PREFIX"), token),
             token_type: "Bearer".to_string(),
         }
     }

@@ -42,7 +42,6 @@ pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), S
             let bearer_str = auth_str.split(" ").collect::<Vec<&str>>();
             let token_prefix = bearer_str[1].split(".").collect::<Vec<&str>>();
             let token = token_prefix[1..].join(".");
-            println!("{}",token);
             if let Ok(token_data) = UserToken::decode_token(&token.to_string()) {
                 if let Ok(id) = UserToken::verify_token(&token_data, pool) {
                     if let Ok(user) = User::find_user_by_id(&id, &mut pool.get().unwrap()) {

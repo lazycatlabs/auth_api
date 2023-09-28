@@ -5,7 +5,16 @@ This is a simple API that allows you to create users and authenticate them using
 
 
 ## Installation
-
+- Install Rust from [here](https://www.rust-lang.org/tools/install)
+- Install Diesel CLI from [here](https://diesel.rs/guides/getting-started/)
+- Install Postgres via Docker
+```bash
+docker compose up -d
+```
+- Run the migration
+```bash
+diesel migration run
+```
 ### Generate RSA Key
 - Generate RSA Key in [here](https://travistidwell.com/jsencrypt/demo/) and select a key size to 4096 bits.
 - Then click `Generate New Keys`

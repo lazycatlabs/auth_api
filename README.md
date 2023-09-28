@@ -16,9 +16,9 @@ This is a simple API that allows you to create users and authenticate them using
 ## TODO
 
 - [ ] General Token
-- [ ] Auth Token
-- [ ] Register
-- [ ] Login
+- [x] Auth Token
+- [x] Register
+- [x] Login
 - [ ] Login with Social
 - [ ] Get Account
 - [x] Logout

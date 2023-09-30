@@ -29,7 +29,7 @@ diesel migration run
 - [x] Register
 - [x] Login
 - [ ] Login with Social
-- [ ] Get Account
+- [x] Get Profile
 - [x] Logout
 - [ ] Refresh token
 - [ ] Forgot password

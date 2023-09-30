@@ -1,4 +1,4 @@
-use actix_web::HttpRequest;
+use actix_web::{FromRequest, HttpRequest};
 use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use dotenv_codegen::dotenv;
@@ -6,8 +6,10 @@ use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, TokenData, Valid
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::error::ServiceError;
-use crate::models::user::LoginInfoDTO;
+use crate::{
+    error::ServiceError,
+    models::user::LoginInfoDTO,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
@@ -89,21 +91,3 @@ impl UserToken {
         Err(ServiceError::Unauthorized)
     }
 }
-
-// impl FromRequest for UserToken {
-//     type Error = ServiceError;
-//
-//     type Future = Pin<Box<dyn Future<Output=Result<UserToken, Self::Error>>>>;
-//
-//     fn from_request(request: &HttpRequest, _payload: &mut Payload) -> Self::Future {
-//         if let Ok(jwt) = UserToken::parse_jwt_from_request(request) {
-//             if let Ok(user_token) = UserToken::verify_token(&jwt) {
-//                 println!("TOKEN {}", user_token);
-//                 return Box::pin(async move { Ok(user_token) });
-//             }
-//         }
-//         Box::pin(async move { Err(ServiceError::Unauthorized) })
-//     }
-// }
-//
-

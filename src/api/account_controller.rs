@@ -56,3 +56,22 @@ pub async fn logout(
         })
     }
 }
+
+pub async fn profile(
+    req: HttpRequest,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, ServiceError> {
+    if let Some(auth_header) = req.headers().get(AUTHORIZATION) {
+        match account_service::profile(auth_header, &pool) {
+            Ok(user) => Ok(HttpResponse::Ok().json(ResponseBody::new(
+                Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
+                user,
+            ))),
+            Err(err) => Err(err)
+        }
+    } else {
+        Err(ServiceError::BadRequest {
+            message: MESSAGE_TOKEN_MISSING.to_string()
+        })
+    }
+}

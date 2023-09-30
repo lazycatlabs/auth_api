@@ -1,15 +1,27 @@
 use actix_web::http::header::HeaderValue;
 use actix_web::web;
-use jsonwebtoken::TokenData;
+use base64::{Engine as _, engine::general_purpose};
+use dotenv_codegen::dotenv;
+use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use uuid::Uuid;
 
 use crate::{
     config::db::Pool,
-    models::{
+    error::ServiceError, models::{
         jwt::UserToken,
         user::User,
     },
 };
+
+pub fn decode_token(jwt: &String) -> Result<TokenData<UserToken>, ServiceError> {
+    let bytes_public_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY")).unwrap();
+    let decoded_public_key = String::from_utf8(bytes_public_key).unwrap();
+    jsonwebtoken::decode::<UserToken>(
+        jwt,
+        &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
+        &Validation::new(Algorithm::RS256),
+    ).map_err(|_e| ServiceError::Unauthorized)
+}
 
 pub fn token_extractor(auth: &str) -> String {
     let bearer_str = auth.split(" ").collect::<Vec<&str>>();

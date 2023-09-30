@@ -1,8 +1,7 @@
-use actix_web::{FromRequest, HttpRequest};
 use base64::{Engine as _, engine::general_purpose};
 use chrono::Utc;
 use dotenv_codegen::dotenv;
-use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, TokenData, Validation};
+use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -57,37 +56,5 @@ impl UserToken {
             &payload,
             &EncodingKey::from_rsa_pem(decoded_private_key.as_bytes()).unwrap(),
         ).map_err(|_e| ServiceError::InternalError)
-    }
-
-    pub fn decode_token(jwt: &String) -> Result<TokenData<UserToken>, ServiceError> {
-        let bytes_public_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY")).unwrap();
-        let decoded_public_key = String::from_utf8(bytes_public_key).unwrap();
-        jsonwebtoken::decode::<UserToken>(
-            jwt,
-            &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
-            &Validation::new(Algorithm::RS256),
-        ).map_err(|_e| ServiceError::Unauthorized)
-    }
-
-
-    pub fn parse_jwt_from_request(request: &HttpRequest) -> Result<String, ServiceError> {
-        // Validate if Auth data format is correct
-        if let Some(auth_header) = request.headers().get("Authorization") {
-            if let Ok(auth_str) = auth_header.to_str() {
-                if !(auth_str.starts_with("bearer") || auth_str.starts_with("Bearer")) {
-                    return Err(ServiceError::Unauthorized);
-                }
-
-                let bearer_token: Vec<&str> = auth_str.split_whitespace().collect();
-                if bearer_token.len() != 2 {
-                    return Err(ServiceError::Unauthorized);
-                }
-
-                let token = bearer_token[1];
-                return Ok(token.to_owned());
-            }
-        }
-
-        Err(ServiceError::Unauthorized)
     }
 }

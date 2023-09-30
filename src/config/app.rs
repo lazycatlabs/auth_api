@@ -6,7 +6,8 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
     // Configuring routes
     cfg.service(
         web::scope("/api")
-            .service(health_checker::health_checker)
+            .service(web::resource("/health_checker")
+                .route(web::get().to(health_checker::health_checker)))
             .service(
                 web::scope("/auth")
                     .service(

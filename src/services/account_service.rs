@@ -42,7 +42,7 @@ pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), S
     if let Ok(auth_str) = auth_header.to_str() {
         if token_utils::is_auth_header_valid(auth_header) {
             let token = token_extractor(&auth_str);
-            if let Ok(token_data) = UserToken::decode_token(&token.to_string()) {
+            if let Ok(token_data) = token_utils::decode_token(&token.to_string()) {
                 if let Ok(id) = token_utils::verify_token(&token_data, pool) {
                     if let Ok(user) = User::find_user_by_id(&id, &mut pool.get().unwrap()) {
                         User::logout(user.id, &mut pool.get().unwrap());
@@ -65,7 +65,7 @@ pub fn profile(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<User
     if let Ok(auth_str) = auth_header.to_str() {
         if token_utils::is_auth_header_valid(auth_header) {
             let token = token_extractor(&auth_str);
-            if let Ok(token_data) = UserToken::decode_token(&token.to_string()) {
+            if let Ok(token_data) = token_utils::decode_token(&token.to_string()) {
                 if let Ok(user_id) = token_utils::verify_token(&token_data, pool) {
                     if let Ok(user) = User::find_user_by_id(&user_id, &mut pool.get().unwrap()) {
                         return Ok(user);

@@ -11,13 +11,19 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::{config::db::{
-    Connection,
-    Pool,
-}, constants, constants::MESSAGE_SUCCESS, error::ServiceError, models::{
-    jwt::UserToken,
-    login_history::LoginHistory,
-}, schema::users::{self, dsl::*}, utils::token_utils::*};
+use crate::{
+    config::db::{
+        Connection,
+        Pool,
+    },
+    constants::*,
+    error::ServiceError, models::{
+        jwt::UserToken,
+        login_history::LoginHistory,
+    },
+    schema::users::{self, dsl::*},
+    utils::token_utils::*,
+};
 
 #[derive(Queryable, Serialize, Deserialize, Insertable)]
 #[table_name = "users"]
@@ -188,7 +194,7 @@ impl FromRequest for User {
 
     // act as auth middleware
     fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
-        if let Some(header_auth_string) = request.headers().get(constants::AUTHORIZATION) {
+        if let Some(header_auth_string) = request.headers().get(AUTHORIZATION) {
             if let Some(pool) = request.app_data::<Data<Pool>>() {
                 if let Ok(auth_str) = header_auth_string.to_str() {
                     if is_auth_header_valid(header_auth_string) {

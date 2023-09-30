@@ -1,16 +1,13 @@
-use actix_web::http::header::HeaderValue;
 use actix_web::web;
+use uuid::Uuid;
 
 use crate::
 {config::db::Pool,
- constants::*,
  error::ServiceError, models::{
     jwt::UserToken,
     user::{LoginDTO, User, UserDTO},
 }};
 use crate::models::jwt::JWTResponse;
-use crate::utils::token_utils;
-use crate::utils::token_utils::token_extractor;
 
 pub fn signup(user_new: UserDTO, pool: &web::Data<Pool>) -> Result<String, ServiceError> {
     match User::signup(user_new, &mut pool.get().unwrap()) {
@@ -38,47 +35,7 @@ pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<JWTResponse, Serv
     }
 }
 
-pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), ServiceError> {
-    if let Ok(auth_str) = auth_header.to_str() {
-        if token_utils::is_auth_header_valid(auth_header) {
-            let token = token_extractor(&auth_str);
-            if let Ok(token_data) = token_utils::decode_token(&token.to_string()) {
-                if let Ok(id) = token_utils::verify_token(&token_data, pool) {
-                    if let Ok(user) = User::find_user_by_id(&id, &mut pool.get().unwrap()) {
-                        User::logout(user.id, &mut pool.get().unwrap());
-                        return Ok(());
-                    }
-                }
-            } else {
-                return Err(ServiceError::Unauthorized);
-            }
-        } else {
-            return Err(ServiceError::BadRequest {
-                message: MESSAGE_BAD_REQUEST.to_string(),
-            });
-        }
-    }
-    return Err(ServiceError::Unauthorized);
-}
-
-pub fn profile(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<User, ServiceError> {
-    if let Ok(auth_str) = auth_header.to_str() {
-        if token_utils::is_auth_header_valid(auth_header) {
-            let token = token_extractor(&auth_str);
-            if let Ok(token_data) = token_utils::decode_token(&token.to_string()) {
-                if let Ok(user_id) = token_utils::verify_token(&token_data, pool) {
-                    if let Ok(user) = User::find_user_by_id(&user_id, &mut pool.get().unwrap()) {
-                        return Ok(user);
-                    }
-                }
-            } else {
-                return Err(ServiceError::Unauthorized);
-            }
-        } else {
-            return Err(ServiceError::BadRequest {
-                message: MESSAGE_BAD_REQUEST.to_string(),
-            });
-        }
-    }
-    return Err(ServiceError::Unauthorized);
+pub fn logout(user_id: Uuid, pool: &web::Data<Pool>) -> Result<(), ServiceError> {
+    User::logout(user_id, &mut pool.get().unwrap());
+    return Ok(());
 }

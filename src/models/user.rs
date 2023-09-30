@@ -1,3 +1,9 @@
+use std::future::Future;
+use std::pin::Pin;
+
+use actix_web::{FromRequest, HttpRequest};
+use actix_web::dev::Payload;
+use actix_web::web::Data;
 use bcrypt::{DEFAULT_COST, hash, verify};
 use chrono::{NaiveDateTime, Utc};
 use diesel::prelude::*;
@@ -5,14 +11,13 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::{
-    config::db::Connection,
-    constants::MESSAGE_SUCCESS,
-    error::ServiceError,
-    models::login_history::LoginHistory,
-    schema::users::{self, dsl::*},
-};
-use crate::models::jwt::UserToken;
+use crate::{config::db::{
+    Connection,
+    Pool,
+}, constants, constants::MESSAGE_SUCCESS, error::ServiceError, models::{
+    jwt::UserToken,
+    login_history::LoginHistory,
+}, schema::users::{self, dsl::*}, utils::token_utils::*};
 
 #[derive(Queryable, Serialize, Deserialize, Insertable)]
 #[table_name = "users"]
@@ -171,6 +176,37 @@ impl From<UserDTO> for User {
             photo: String::from("default.png"),
             verified: false,
         }
+    }
+}
+
+
+///
+impl FromRequest for User {
+    type Error = ServiceError;
+    type Future = Pin<Box<dyn Future<Output=Result<User, Self::Error>>>>;
+
+
+    // act as auth middleware
+    fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
+        if let Some(header_auth_string) = request.headers().get(constants::AUTHORIZATION) {
+            if let Some(pool) = request.app_data::<Data<Pool>>() {
+                if let Ok(auth_str) = header_auth_string.to_str() {
+                    if is_auth_header_valid(header_auth_string) {
+                        let token = token_extractor(&auth_str);
+                        if let Ok(token_data) = decode_token(&token.to_string()) {
+                            if let Ok(user_id) = verify_token(&token_data, pool) {
+                                if let Ok(user) = User::find_user_by_id(&user_id, &mut pool.get().unwrap()) {
+                                    return Box::pin(async move {
+                                        Ok(user)
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Box::pin(async move { Err(ServiceError::Unauthorized) })
     }
 }
 

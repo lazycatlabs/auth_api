@@ -9,6 +9,7 @@ use crate::
     user::{LoginDTO, User, UserDTO},
 }};
 use crate::models::jwt::JWTResponse;
+use crate::utils::token_utils;
 use crate::utils::token_utils::token_extractor;
 
 pub fn signup(user_new: UserDTO, pool: &web::Data<Pool>) -> Result<String, ServiceError> {
@@ -39,10 +40,10 @@ pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<JWTResponse, Serv
 
 pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), ServiceError> {
     if let Ok(auth_str) = auth_header.to_str() {
-        if UserToken::is_auth_header_valid(auth_header) {
+        if token_utils::is_auth_header_valid(auth_header) {
             let token = token_extractor(&auth_str);
             if let Ok(token_data) = UserToken::decode_token(&token.to_string()) {
-                if let Ok(id) = UserToken::verify_token(&token_data, pool) {
+                if let Ok(id) = token_utils::verify_token(&token_data, pool) {
                     if let Ok(user) = User::find_user_by_id(&id, &mut pool.get().unwrap()) {
                         User::logout(user.id, &mut pool.get().unwrap());
                         return Ok(());
@@ -62,10 +63,10 @@ pub fn logout(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<(), S
 
 pub fn profile(auth_header: &HeaderValue, pool: &web::Data<Pool>) -> Result<User, ServiceError> {
     if let Ok(auth_str) = auth_header.to_str() {
-        if UserToken::is_auth_header_valid(auth_header) {
+        if token_utils::is_auth_header_valid(auth_header) {
             let token = token_extractor(&auth_str);
             if let Ok(token_data) = UserToken::decode_token(&token.to_string()) {
-                if let Ok(user_id) = UserToken::verify_token(&token_data, pool) {
+                if let Ok(user_id) = token_utils::verify_token(&token_data, pool) {
                     if let Ok(user) = User::find_user_by_id(&user_id, &mut pool.get().unwrap()) {
                         return Ok(user);
                     }

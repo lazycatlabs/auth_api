@@ -67,3 +67,16 @@ pub async fn update_user(
         Err(err) => Err(err)
     }
 }
+
+pub async fn delete_user(
+    user: User,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, ServiceError> {
+    match account_service::delete_user(user.id, &pool) {
+        Ok(message) => Ok(HttpResponse::Ok().json(ResponseBodyNoData::new(
+            Diagnostic::new(STATUS_SUCCESS, message.as_str()),
+        ))),
+        Err(err) => Err(err)
+    }
+}
+

@@ -2,6 +2,6 @@
 CREATE TABLE login_history
 (
     id SERIAL PRIMARY KEY NOT NULL,
-    user_id UUID NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     login_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

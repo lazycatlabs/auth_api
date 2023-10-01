@@ -25,6 +25,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
             ).service(
             web::resource("/profile")
                 .route(web::get().to(account_controller::profile))
-                .route(web::put().to(account_controller::update_user)))
+                .route(web::put().to(account_controller::update_user))
+                .route(web::delete().to(account_controller::delete_user)))
     );
 }

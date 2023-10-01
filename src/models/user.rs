@@ -25,7 +25,7 @@ use crate::{
     utils::token_utils::*,
 };
 
-#[derive(Queryable, Serialize, Deserialize, Insertable)]
+#[derive(Queryable, Serialize, Deserialize, Insertable, Debug)]
 #[table_name = "users"]
 #[serde(rename_all = "camelCase")]
 pub struct User {
@@ -186,6 +186,22 @@ impl User {
                 .get_result::<User>(conn) {
                 Ok(updated_user) => Ok(updated_user),
                 Err(_) => Err(ServiceError::InternalError)
+            }
+        } else {
+            Err(ServiceError::UserNotFoundError)
+        }
+    }
+
+    pub fn delete_user(user_id: Uuid, conn: &mut Connection) -> Result<String, ServiceError> {
+        println!("user_id: {}", user_id);
+        if let Ok(user) = User::find_user_by_id(&user_id, conn) {
+            match diesel::delete(users.find(user.id))
+                .execute(conn) {
+                Ok(_) => Ok(format!("User with email '{}' deleted successfully", user.email)),
+                Err(err) => {
+                    println!("err: {:?}", err);
+                    Err(ServiceError::InternalError)
+                }
             }
         } else {
             Err(ServiceError::UserNotFoundError)

@@ -29,10 +29,10 @@ pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<JWTResponse, Serv
                         Ok(JWTResponse::new(token_res))
                     }
                 }
-                Err(_) => Err(ServiceError::InternalError),
+                Err(err) => Err(err),
             }
         }
-        Err(_) => Err(ServiceError::Unauthorized),
+        Err(err) => Err(err),
     }
 }
 
@@ -48,6 +48,16 @@ pub fn update_user(
 ) -> Result<User, ServiceError> {
     match User::update_user(user_id, user_update, &mut pool.get().unwrap()) {
         Ok(user) => Ok(user),
-        Err(_) => Err(ServiceError::UserNotFoundError)
+        Err(err) => Err(err)
+    }
+}
+
+pub fn delete_user(
+    user_id: Uuid,
+    pool: &web::Data<Pool>,
+) -> Result<String, ServiceError> {
+    match User::delete_user(user_id, &mut pool.get().unwrap()) {
+        Ok(message) => Ok(message),
+        Err(err) => Err(err)
     }
 }

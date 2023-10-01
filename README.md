@@ -32,7 +32,7 @@ diesel migration run
 - [x] Profile
    - [x] Get 
    - [x] Update
-   - [ ] Delete
+   - [x] Delete
 - [x] Logout
 - [ ] Refresh token
 - [ ] Forgot password

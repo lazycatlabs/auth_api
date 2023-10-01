@@ -8,6 +8,7 @@ use crate::
     user::{LoginDTO, User, UserDTO},
 }};
 use crate::models::jwt::JWTResponse;
+use crate::models::user::UpdateUserDTO;
 
 pub fn signup(user_new: UserDTO, pool: &web::Data<Pool>) -> Result<String, ServiceError> {
     match User::signup(user_new, &mut pool.get().unwrap()) {
@@ -38,4 +39,15 @@ pub fn login(user: LoginDTO, pool: &web::Data<Pool>) -> Result<JWTResponse, Serv
 pub fn logout(user_id: Uuid, pool: &web::Data<Pool>) -> Result<(), ServiceError> {
     User::logout(user_id, &mut pool.get().unwrap());
     return Ok(());
+}
+
+pub fn update_user(
+    user_id: Uuid,
+    user_update: UpdateUserDTO,
+    pool: &web::Data<Pool>,
+) -> Result<User, ServiceError> {
+    match User::update_user(user_id, user_update, &mut pool.get().unwrap()) {
+        Ok(user) => Ok(user),
+        Err(_) => Err(ServiceError::UserNotFoundError)
+    }
 }

@@ -6,11 +6,10 @@ use crate::{
     error::ServiceError,
     models::{
         response::{Diagnostic, ResponseBody, ResponseBodyNoData},
-        user::{LoginDTO, UserDTO},
+        user::{LoginDTO, UpdateUserDTO, User, UserDTO},
     },
     services::account_service,
 };
-use crate::models::user::User;
 
 pub async fn signup(
     user: web::Json<UserDTO>,
@@ -53,4 +52,18 @@ pub async fn profile(user: User) -> Result<HttpResponse, ServiceError> {
         Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
         user,
     )))
+}
+
+pub async fn update_user(
+    user: User,
+    user_update: web::Json<UpdateUserDTO>,
+    pool: web::Data<Pool>,
+) -> Result<HttpResponse, ServiceError> {
+    match account_service::update_user(user.id, user_update.0, &pool) {
+        Ok(user) => Ok(HttpResponse::Ok().json(ResponseBody::new(
+            Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
+            user,
+        ))),
+        Err(err) => Err(err)
+    }
 }

@@ -42,6 +42,15 @@ pub struct User {
     updated_at: NaiveDateTime,
 }
 
+
+#[derive(AsChangeset, Serialize, Deserialize, Debug)]
+#[table_name = "users"]
+pub struct UpdateUserDTO {
+    pub name: Option<String>,
+    pub photo: Option<String>,
+    pub verified: Option<bool>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct UserDTO {
     #[validate(email)]
@@ -156,13 +165,30 @@ impl User {
             .is_ok()
     }
 
-
     fn hash_password(&mut self) -> Result<(), ServiceError> {
         if let Ok(hashed_password) = hash(&self.password.as_bytes(), DEFAULT_COST) {
             self.password = hashed_password;
             Ok(())
         } else {
             Err(ServiceError::InternalError)
+        }
+    }
+
+    pub fn update_user(user_id: Uuid, user_update: UpdateUserDTO, conn: &mut Connection) -> Result<Self, ServiceError> {
+        if let Ok(user) = User::find_user_by_id(&user_id, conn) {
+            match diesel::update(users.find(user.id))
+                .set((
+                    name.eq(user_update.name.unwrap_or(user.name)),
+                    photo.eq(user_update.photo.unwrap_or(user.photo)),
+                    verified.eq(user_update.verified.unwrap_or(user.verified)),
+                    updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .get_result::<User>(conn) {
+                Ok(updated_user) => Ok(updated_user),
+                Err(_) => Err(ServiceError::InternalError)
+            }
+        } else {
+            Err(ServiceError::UserNotFoundError)
         }
     }
 }

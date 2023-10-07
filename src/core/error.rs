@@ -5,10 +5,10 @@ use actix_web::{
 };
 use derive_more::{Display, Error};
 
-use crate::models::response::{Diagnostic, ResponseBodyNoData};
+use crate::core::response::{Diagnostic, ResponseBodyNoData};
 
 #[derive(Debug, Display, Error)]
-pub enum ServiceError {
+pub enum APIError {
     #[display(fmt = "Unauthorized.")]
     Unauthorized,
     #[display(fmt = "Invalid credentials.")]
@@ -21,14 +21,14 @@ pub enum ServiceError {
     BadRequest { message: String },
 }
 
-impl error::ResponseError for ServiceError {
+impl error::ResponseError for APIError {
     fn status_code(&self) -> StatusCode {
         match *self {
-            ServiceError::BadRequest { .. } => StatusCode::BAD_REQUEST,
-            ServiceError::InvalidCredentials => StatusCode::UNAUTHORIZED,
-            ServiceError::Unauthorized => StatusCode::UNAUTHORIZED,
-            ServiceError::UserNotFoundError => StatusCode::NOT_FOUND,
-            ServiceError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
+            APIError::BadRequest { .. } => StatusCode::BAD_REQUEST,
+            APIError::InvalidCredentials => StatusCode::UNAUTHORIZED,
+            APIError::Unauthorized => StatusCode::UNAUTHORIZED,
+            APIError::UserNotFoundError => StatusCode::NOT_FOUND,
+            APIError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 

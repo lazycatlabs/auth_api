@@ -1,6 +1,8 @@
 use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 
+use crate::core::constants::{MESSAGE_SUCCESS, STATUS_SUCCESS};
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Diagnostic {
@@ -42,6 +44,17 @@ impl<T> ResponseBody<T> {
         };
         ResponseBody {
             diagnostic,
+            data,
+        }
+    }
+
+    pub fn success(data: Option<T>) -> ResponseBody<T> {
+        let data = match data {
+            Some(data) => Some(data),
+            None => None,
+        };
+        ResponseBody {
+            diagnostic: Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
             data,
         }
     }

@@ -21,6 +21,7 @@ use crate::{
     },
     schema::users::{self, dsl::*},
 };
+use crate::features::user::domain::entity::user::UserEntity;
 
 #[derive(Clone)]
 pub struct UserRepository {
@@ -54,11 +55,19 @@ impl IUserRepository for UserRepository {
         }
     }
 
-    async fn find_user_by_id(&self, user_id: Uuid) -> AppResult<User> {
+    fn find_user_by_id(&self, user_id: &Uuid) -> AppResult<UserEntity> {
         match users::table
             .filter(id.eq(user_id))
             .get_result::<User>(&mut self.source.get().unwrap()) {
-            Ok(user) => Ok(user),
+            Ok(user) => Ok(
+                UserEntity {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    photo: user.photo,
+                    verified: user.verified,
+                }
+            ),
             Err(_) => Err(APIError::UserNotFoundError),
         }
     }

@@ -3,12 +3,8 @@ use actix_web::web::Json;
 
 use crate::{
     core::{
-        config::state::AppState,
-        constants::{MESSAGE_SUCCESS, STATUS_SUCCESS},
-        response::{
-            Diagnostic,
-            ResponseBody,
-        },
+        middlewares::state::AppState,
+        response::ResponseBody,
         types::AppResult,
     },
     features::auth::{
@@ -28,12 +24,7 @@ pub async fn login(
     let result = state.di_container.auth_service.login(params.0).await;
 
     match result {
-        Ok(data) => Ok(HttpResponse::Ok().json(
-            ResponseBody::new(
-                Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
-                Some(data),
-            )
-        )),
+        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
         Err(e) => Err(e),
     }
 }

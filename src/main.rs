@@ -4,11 +4,8 @@ use dotenv::dotenv;
 
 use crate::core::config::server::run;
 
-mod models;
 mod schema;
 mod features;
-mod api;
-mod services;
 mod utils;
 mod core;
 

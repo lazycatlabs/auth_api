@@ -107,4 +107,12 @@ impl IAuthRepository for AuthRepository {
 
         Err(APIError::InvalidCredentials)
     }
+
+     fn is_valid_login_session(&self, params: &AuthToken) -> bool {
+        users
+            .filter(id.eq(&params.jti))
+            .filter(login_session.eq(&params.login_session))
+            .get_result::<User>(&mut self.source.get().unwrap())
+            .is_ok()
+    }
 }

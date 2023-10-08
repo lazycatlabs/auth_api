@@ -1,5 +1,9 @@
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
+
+#[derive(Serialize, Deserialize)]
 pub struct UserEntity {
-    pub id: String,
+    pub id: Uuid,
     pub name: String,
     pub email: String,
     pub photo: String,

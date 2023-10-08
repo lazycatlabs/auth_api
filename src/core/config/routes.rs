@@ -5,15 +5,18 @@ use crate::{
         auth::auth_controller,
         user::user_controller,
     },
-    utils::handler::route_not_found,
+    utils::{
+        handler::route_not_found,
+        health_checker,
+    },
 };
 
 pub fn config_services(cfg: &mut web::ServiceConfig) {
     // Configuring routes
     cfg.service(
         web::scope("/api")
-            // .service(web::resource("/health_checker")
-            //     .route(web::get().to(health_checker::health_checker)))
+            .service(web::resource("/health_checker")
+                .route(web::get().to(health_checker::health_checker)))
             .service(
                 web::scope("/auth")
                     .service(
@@ -27,8 +30,8 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
             )
             .service(
                 web::resource("/user")
-                    .route(web::post().to(user_controller::register)),
-                //     .route(web::get().to(account_controller::profile))
+                    .route(web::post().to(user_controller::register))
+                    .route(web::get().to(user_controller::get_user))
                 //     .route(web::put().to(account_controller::update_user))
                 //     .route(web::delete().to(account_controller::delete_user)))
             ))

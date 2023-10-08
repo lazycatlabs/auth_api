@@ -1,4 +1,4 @@
-use crate::core::config::di_container::DiContainer;
+use crate::core::config::di::DiContainer;
 use crate::core::types::DBConn;
 
 #[derive(Clone)]

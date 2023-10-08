@@ -1,7 +1,9 @@
 use std::env;
 
-use diesel::PgConnection;
-use diesel::r2d2::ConnectionManager;
+use diesel::{
+    PgConnection,
+    r2d2::ConnectionManager,
+};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use crate::core::types::*;

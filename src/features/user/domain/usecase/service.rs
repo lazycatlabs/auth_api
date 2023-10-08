@@ -1,5 +1,7 @@
 use async_trait::async_trait;
+use validator::Validate;
 
+use crate::core::error::APIError;
 use crate::core::types::AppResult;
 use crate::features::user::domain::{
     repository::user::IUserRepository,
@@ -10,16 +12,16 @@ use crate::features::user::domain::{
 };
 
 #[derive(Clone)]
-pub struct UserService< T>
+pub struct UserService<T>
     where T: IUserRepository
 {
-    pub repository:  T,
+    pub repository: T,
 }
 
-impl< T> UserService< T>
+impl<T> UserService<T>
     where T: IUserRepository
 {
-    pub fn new(repository:  T) -> Self {
+    pub fn new(repository: T) -> Self {
         Self {
             repository,
         }
@@ -27,11 +29,16 @@ impl< T> UserService< T>
 }
 
 #[async_trait]
-impl< T> IUserService for UserService< T>
+impl<T> IUserService for UserService<T>
     where T: IUserRepository
 {
     async fn register(&self, params: RegisterParams) -> AppResult<String> {
-        let result = self.repository.create(params).await?;
-        Ok(result)
+        match params.validate() {
+            Ok(_) => {
+                let result = self.repository.create(params).await?;
+                Ok(result)
+            }
+            Err(e) => Err(APIError::BadRequest { message: e.to_string() })
+        }
     }
 }

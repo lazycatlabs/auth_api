@@ -3,11 +3,15 @@ use actix_web::web::Json;
 
 use crate::{
     core::{
+        constants::STATUS_SUCCESS,
         middlewares::{
             auth::AuthMiddleware,
             state::AppState,
         },
-        response::ResponseBody,
+        response::{
+            Diagnostic,
+            ResponseBody,
+        },
         types::AppResult,
     },
     features::user::domain::usecase::{
@@ -43,6 +47,19 @@ pub async fn update_user(
     match state.di_container.user_service
         .update_user(auth.user.id, params.0) {
         Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
+        Err(e) => Err(e),
+    }
+}
+
+pub async fn delete_user(
+    auth: AuthMiddleware,
+    state: web::Data<AppState>,
+) -> AppResult<HttpResponse> {
+    match state.di_container.user_service
+        .delete_user(auth.user.id) {
+        Ok(data) => Ok(ResponseBody::<()>::new(
+            Diagnostic::new(STATUS_SUCCESS, data.as_str()),
+            None).into()),
         Err(e) => Err(e),
     }
 }

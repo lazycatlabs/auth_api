@@ -99,4 +99,19 @@ impl IUserRepository for UserRepository {
             Err(APIError::UserNotFoundError)
         }
     }
+
+    fn delete(&self, user_id: Uuid) -> AppResult<String> {
+        if let Ok(user) = self.find_user_by_id(user_id) {
+            match diesel::delete(users.find(user.id))
+                .execute(&mut self.source.get().unwrap()) {
+                Ok(_) => Ok(format!("User with email '{}' deleted successfully", user.email)),
+                Err(err) => {
+                    println!("err: {:?}", err);
+                    Err(APIError::InternalError)
+                }
+            }
+        } else {
+            Err(APIError::UserNotFoundError)
+        }
+    }
 }

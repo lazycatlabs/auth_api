@@ -1,6 +1,5 @@
 use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
-
 use crate::core::constants::{MESSAGE_SUCCESS, STATUS_SUCCESS};
 
 #[derive(Debug, Serialize, Deserialize)]

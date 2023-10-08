@@ -63,4 +63,11 @@ impl IUserService for UserService
             Err(e) => Err(e)
         }
     }
+
+    fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
+        match self.user_repo.delete(user_id) {
+            Ok(data) => Ok(data),
+            Err(e) => Err(e)
+        }
+    }
 }

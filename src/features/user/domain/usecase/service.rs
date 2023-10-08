@@ -4,16 +4,23 @@ use async_trait::async_trait;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::core::error::APIError;
-use crate::core::types::AppResult;
-use crate::features::user::domain::{
-    repository::user::IUserRepository,
-    usecase::{
-        dto::RegisterParams,
-        interface::IUserService,
+use crate::{
+    core::{
+        error::APIError,
+        types::AppResult,
+    },
+    features::user::domain::{
+        entity::user::UserEntity,
+        repository::user::IUserRepository,
+        usecase::{
+            dto::{
+                RegisterParams,
+                UpdateUserParams,
+            },
+            interface::IUserService,
+        },
     },
 };
-use crate::features::user::domain::entity::user::UserEntity;
 
 #[derive(Clone)]
 pub struct UserService
@@ -43,8 +50,15 @@ impl IUserService for UserService
         }
     }
 
-    fn find_user_by_id(&self, id: &Uuid) -> AppResult<UserEntity> {
-        match self.user_repo.find_user_by_id(id) {
+    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
+        match self.user_repo.find_user_by_id(user_id) {
+            Ok(data) => Ok(data),
+            Err(e) => Err(e)
+        }
+    }
+
+    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity> {
+        match self.user_repo.update_user(user_id, params) {
             Ok(data) => Ok(data),
             Err(e) => Err(e)
         }

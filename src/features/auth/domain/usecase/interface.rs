@@ -2,12 +2,14 @@ use async_trait::async_trait;
 use jsonwebtoken::TokenData;
 use uuid::Uuid;
 
-use crate::core::types::AppResult;
-use crate::features::auth::{
-    data::models::auth_token::AuthToken,
-    domain::{
-        entity::auth::AuthEntity,
-        usecase::dto::LoginParams,
+use crate::{
+    core::types::AppResult,
+    features::auth::{
+        data::models::auth_token::AuthToken,
+        domain::{
+            entity::auth::AuthEntity,
+            usecase::dto::LoginParams,
+        },
     },
 };
 

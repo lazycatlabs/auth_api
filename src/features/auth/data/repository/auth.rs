@@ -8,7 +8,7 @@ use uuid::Uuid;
 use crate::{
     core::{
         error::APIError,
-        types::AppResult,
+        types::{AppResult, DBConn},
     },
     features::{
         auth::{
@@ -29,7 +29,6 @@ use crate::{
         users::{self, dsl::*},
     },
 };
-use crate::core::types::DBConn;
 
 #[derive(Clone)]
 pub struct AuthRepository {

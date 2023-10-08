@@ -5,11 +5,13 @@ use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::core::{
-    error::APIError,
-    types::AppResult,
+use crate::{
+    core::{
+        error::APIError,
+        types::AppResult,
+    },
+    features::auth::data::models::login_info::LoginInfo
 };
-use crate::features::auth::data::models::login_info::LoginInfo;
 
 #[derive(Serialize, Deserialize)]
 pub struct AuthToken {

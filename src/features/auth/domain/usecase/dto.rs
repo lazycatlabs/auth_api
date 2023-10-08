@@ -7,7 +7,7 @@ use validator::Validate;
 use crate::schema::login_history;
 
 #[derive(Insertable)]
-#[table_name = "login_history"]
+#[diesel(table_name = login_history)]
 pub struct LoginHistoryParams {
     pub user_id: Uuid,
     pub login_timestamp: NaiveDateTime,

@@ -13,7 +13,7 @@ use crate::{
 };
 
 #[derive(Queryable, Serialize, Deserialize, Insertable, Debug)]
-#[table_name = "users"]
+#[diesel(table_name = users)]
 #[serde(rename_all = "camelCase")]
 pub struct User {
     pub id: Uuid,

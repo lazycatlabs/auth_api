@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::Utc;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use diesel::prelude::*;
 use uuid::Uuid;
@@ -15,13 +16,16 @@ use crate::{
     features::user::{
         data::models::user::User,
         domain::{
+            entity::user::UserEntity,
             repository::user::IUserRepository,
-            usecase::dto::RegisterParams,
+            usecase::dto::{
+                RegisterParams,
+                UpdateUserParams,
+            },
         },
     },
     schema::users::{self, dsl::*},
 };
-use crate::features::user::domain::entity::user::UserEntity;
 
 #[derive(Clone)]
 pub struct UserRepository {
@@ -55,7 +59,7 @@ impl IUserRepository for UserRepository {
         }
     }
 
-    fn find_user_by_id(&self, user_id: &Uuid) -> AppResult<UserEntity> {
+    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
         match users::table
             .filter(id.eq(user_id))
             .get_result::<User>(&mut self.source.get().unwrap()) {
@@ -69,6 +73,30 @@ impl IUserRepository for UserRepository {
                 }
             ),
             Err(_) => Err(APIError::UserNotFoundError),
+        }
+    }
+
+    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity> {
+        if let Ok(user) = self.find_user_by_id(user_id) {
+            match diesel::update(users.find(user.id))
+                .set((
+                    name.eq(params.name.unwrap_or(user.name)),
+                    photo.eq(params.photo.unwrap_or(user.photo)),
+                    verified.eq(params.verified.unwrap_or(user.verified)),
+                    updated_at.eq(Utc::now().naive_utc()),
+                ))
+                .get_result::<User>(&mut self.source.get().unwrap()) {
+                Ok(updated_user) => Ok(UserEntity {
+                    id: updated_user.id,
+                    name: updated_user.name,
+                    email: updated_user.email,
+                    photo: updated_user.photo,
+                    verified: updated_user.verified,
+                }),
+                Err(_) => Err(APIError::InternalError)
+            }
+        } else {
+            Err(APIError::UserNotFoundError)
         }
     }
 }

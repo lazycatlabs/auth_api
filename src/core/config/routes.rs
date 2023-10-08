@@ -32,7 +32,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                 web::resource("/user")
                     .route(web::post().to(user_controller::register))
                     .route(web::get().to(user_controller::get_user))
-                //     .route(web::put().to(account_controller::update_user))
+                    .route(web::put().to(user_controller::update_user))
                 //     .route(web::delete().to(account_controller::delete_user)))
             ))
         .default_service(web::route().to(route_not_found));

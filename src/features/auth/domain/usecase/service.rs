@@ -5,18 +5,27 @@ use jsonwebtoken::TokenData;
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::core::error::APIError;
-use crate::core::types::AppResult;
-use crate::features::auth::data::models::auth_token::AuthToken;
-use crate::features::auth::domain::{
-    entity::auth::AuthEntity,
-    repository::auth::IAuthRepository,
-    usecase::{
-        dto::LoginParams,
-        interface::IAuthService,
+use crate::{
+    core::{
+        error::APIError,
+        types::AppResult,
     },
+    features::{
+        user::domain::repository::user::IUserRepository,
+        auth::{
+            data::models::auth_token::AuthToken,
+            domain::{
+                entity::auth::AuthEntity,
+                repository::auth::IAuthRepository,
+                usecase::{
+                    dto::LoginParams,
+                    interface::IAuthService,
+                },
+            },
+        },
+    }
 };
-use crate::features::user::domain::repository::user::IUserRepository;
+
 
 #[derive(Clone)]
 pub struct AuthService

@@ -3,16 +3,21 @@ use actix_web::web::Json;
 
 use crate::{
     core::{
-        middlewares::state::AppState,
+        middlewares::{
+            auth::AuthMiddleware,
+            state::AppState,
+        },
         response::ResponseBody,
         types::AppResult,
     },
     features::user::domain::usecase::{
-        dto::RegisterParams,
+        dto::{
+            RegisterParams,
+            UpdateUserParams,
+        },
         interface::IUserService,
     },
 };
-use crate::core::middlewares::auth::AuthMiddleware;
 
 pub async fn register(
     state: web::Data<AppState>,
@@ -28,4 +33,16 @@ pub async fn register(
 
 pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {
     Ok(ResponseBody::success(Some(auth.user)).into())
+}
+
+pub async fn update_user(
+    auth: AuthMiddleware,
+    state: web::Data<AppState>,
+    params: Json<UpdateUserParams>,
+) -> AppResult<HttpResponse> {
+    match state.di_container.user_service
+        .update_user(auth.user.id, params.0) {
+        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
+        Err(e) => Err(e),
+    }
 }

@@ -9,15 +9,27 @@ use base64::engine::general_purpose;
 use dotenv_codegen::dotenv;
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 
-use crate::core::config::db::init_db;
-use crate::core::config::di::DiContainer;
-use crate::core::constants::AUTHORIZATION;
-use crate::core::error::APIError;
-use crate::core::types::AppResult;
-use crate::features::auth::data::models::auth_token::AuthToken;
-use crate::features::auth::domain::usecase::interface::IAuthService;
-use crate::features::user::domain::entity::user::UserEntity;
-use crate::features::user::domain::usecase::interface::IUserService;
+use crate::{
+    core::{
+        config::{
+            db::init_db,
+            di::DiContainer,
+        },
+        constants::AUTHORIZATION,
+        error::APIError,
+        types::AppResult,
+    },
+    features::{
+        auth::{
+            data::models::auth_token::AuthToken,
+            domain::usecase::interface::IAuthService,
+        },
+        user::{
+            domain::entity::user::UserEntity,
+            domain::usecase::interface::IUserService,
+        },
+    },
+};
 
 pub struct AuthMiddleware {
     pub user: UserEntity,
@@ -39,7 +51,7 @@ impl FromRequest for AuthMiddleware {
                     let token = token_extractor(&auth_str);
                     if let Ok(token_data) = decode_token(&token.to_string()) {
                         if let Ok(user_id) = di.auth_service.verify_token(&token_data) {
-                            if let Ok(user) = di.user_service.find_user_by_id(&user_id) {
+                            if let Ok(user) = di.user_service.find_user_by_id(user_id) {
                                 return Box::pin(async move {
                                     Ok(AuthMiddleware {
                                         user

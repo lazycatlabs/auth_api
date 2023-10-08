@@ -38,7 +38,7 @@ impl From<RegisterParams> for User {
 
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
-#[table_name = "users"]
+#[diesel(table_name = users)]
 pub struct UpdateUserParams {
     pub name: Option<String>,
     pub photo: Option<String>,

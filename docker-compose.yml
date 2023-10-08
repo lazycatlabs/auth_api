@@ -2,7 +2,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:latest
-    container_name: postgres
+    DIContainer_name: postgres
     ports:
       - '6500:5432'
     volumes:

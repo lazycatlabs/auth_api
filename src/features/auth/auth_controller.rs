@@ -1,27 +1,37 @@
-use actix_web::HttpResponse;
-use actix_web::web::{Data, Json};
+use actix_web::{HttpResponse, web};
+use actix_web::web::Json;
 
-use crate::core::{
-    constants::{MESSAGE_SUCCESS, STATUS_SUCCESS},
-    response::Diagnostic,
-    types::AppResult,
-};
-use crate::core::response::ResponseBody;
-use crate::features::auth::domain::usecase::{
-    dto::LoginParams, interface::IAuthService,
+use crate::{
+    core::{
+        config::state::AppState,
+        constants::{MESSAGE_SUCCESS, STATUS_SUCCESS},
+        response::{
+            Diagnostic,
+            ResponseBody,
+        },
+        types::AppResult,
+    },
+    features::auth::{
+        domain::{
+            usecase::{
+                dto::LoginParams,
+                interface::IAuthService,
+            },
+        },
+    },
 };
 
 pub async fn login(
-    user_service: Data<dyn IAuthService>,
+    state: web::Data<AppState>,
     params: Json<LoginParams>,
 ) -> AppResult<HttpResponse> {
-    let result = user_service.login(params.0).await;
+    let result = state.di_container.auth_service.login(params.0).await;
 
     match result {
         Ok(data) => Ok(HttpResponse::Ok().json(
             ResponseBody::new(
                 Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
-                data,
+                Some(data),
             )
         )),
         Err(e) => Err(e),

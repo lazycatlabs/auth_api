@@ -5,7 +5,7 @@ use actix_web::{
 };
 use derive_more::{Display, Error};
 
-use crate::core::response::{Diagnostic, ResponseBodyNoData};
+use crate::core::response::{Diagnostic, ResponseBody};
 
 #[derive(Debug, Display, Error)]
 pub enum APIError {
@@ -35,10 +35,9 @@ impl error::ResponseError for APIError {
     fn error_response(&self) -> HttpResponse {
         HttpResponse::build(self.status_code())
             .insert_header(ContentType::json())
-            .json(ResponseBodyNoData::new(
-                Diagnostic::new(
-                    &self.status_code().as_u16().to_string(),
-                    &self.to_string()))
-            )
+            .json(ResponseBody::<()>::new(
+                Diagnostic::new(&self.status_code().as_u16().to_string(), &self.to_string()),
+                None,
+            ))
     }
 }

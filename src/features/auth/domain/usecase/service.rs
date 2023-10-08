@@ -10,6 +10,7 @@ use crate::features::auth::domain::{
     },
 };
 
+#[derive(Clone)]
 pub struct AuthService<T>
     where T: IAuthRepository
 {

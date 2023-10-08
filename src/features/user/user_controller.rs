@@ -1,27 +1,29 @@
-use actix_web::HttpResponse;
-use actix_web::web::{Data, Json};
+use actix_web::{HttpResponse, web};
+use actix_web::web::Json;
 
 use crate::core::{
+    config::state::AppState,
     constants::{MESSAGE_SUCCESS, STATUS_SUCCESS},
-    response::{Diagnostic, ResponseBodyNoData},
+    response::Diagnostic,
     types::AppResult,
 };
+use crate::core::response::ResponseBody;
 use crate::features::user::domain::usecase::{
-    dto::RegisterParams, interface::IUserService,
+    dto::RegisterParams,
+    interface::IUserService,
 };
 
 pub async fn register(
-    user_service: Data<dyn IUserService>,
+    state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {
-    let result = user_service.register(params.0).await;
+    let result = state.di_container.user_service.register(params.0).await;
 
     match result {
-        Ok(_) => Ok(HttpResponse::Ok().json(
-            ResponseBodyNoData::new(
-                Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
-            )
-        )),
+        Ok(_) => Ok(ResponseBody::<()>::new(
+            Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
+            None,
+        ).into()),
         Err(e) => Err(e),
     }
 }

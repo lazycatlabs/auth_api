@@ -4,6 +4,7 @@ use crate::core::error::APIError;
 
 pub type AppResult<T> = Result<T, APIError>;
 
-pub type Pool = r2d2::Pool<ConnectionManager<Connection>>;
-pub type Connection = PgConnection;
+pub type Pool<T> = r2d2::Pool<ConnectionManager<T>>;
+pub type PostgresPool = Pool<PgConnection>;
+pub type DBConn = PostgresPool;
 

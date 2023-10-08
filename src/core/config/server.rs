@@ -1,5 +1,4 @@
 use std::env;
-use std::sync::Arc;
 
 use actix_cors::Cors;
 use actix_web::{
@@ -7,14 +6,12 @@ use actix_web::{
     http::header,
     HttpServer,
     middleware::Logger,
-    web::Data,
 };
 
-use crate::core::config;
-use crate::core::config::db::PostgresDatabase;
-use crate::core::injection::Injection;
-use crate::features::auth::domain::usecase::interface::IAuthService;
-use crate::features::user::domain::usecase::interface::IUserService;
+use crate::core::config::{
+    db::init_db,
+    routes::config_services,
+};
 
 pub async fn run() -> std::io::Result<()> {
     let app_host = env::var("APP_HOST").unwrap_or(String::from("127.0.0.1"));
@@ -22,16 +19,20 @@ pub async fn run() -> std::io::Result<()> {
     let app_url = format!("{}:{}", &app_host, &app_port);
 
     // injection
-    let postgres = PostgresDatabase::new();
-    let inject = Injection::new(&postgres);
+    let state = {
+        let pool = init_db();
+        use crate::core::config::state::AppState;
+        AppState::new(pool)
+    };
 
-    // auth
-    let auth_service: Arc<dyn IAuthService> = Arc::new(inject.auth_service);
-    let auth_service_data: Data<dyn IAuthService> = Data::from(auth_service);
 
-    // user
-    let user_service: Arc<dyn IUserService> = Arc::new(inject.user_service);
-    let user_service_data: Data<dyn IUserService> = Data::from(user_service);
+    // // auth
+    // let auth_service: Arc<dyn IAuthService> = Arc::new(di_container.auth_service);
+    // let auth_service_data: Data<dyn IAuthService> = Data::from(auth_service);
+    //
+    // // user
+    // let user_service: Arc<dyn IUserService> = Arc::new(di_container.user_service);
+    // let user_service_data: Data<dyn IUserService> = Data::from(user_service);
 
 
     HttpServer::new(move || {
@@ -47,9 +48,8 @@ pub async fn run() -> std::io::Result<()> {
                       .allowed_header(header::CONTENT_TYPE)
                       .max_age(3600),
             )
-            .app_data(auth_service_data.clone())
-            .app_data(user_service_data.clone())
-            .configure(config::routes::config_services)
+            .app_data(actix_web::web::Data::new(state.clone()))
+            .configure(config_services)
     })
         .bind(&app_url)?
         .run()

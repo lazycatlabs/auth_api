@@ -1,8 +1,11 @@
 use actix_web::web;
 
-use crate::features::{
-    auth::auth_controller,
-    user::user_controller,
+use crate::{
+    features::{
+        auth::auth_controller,
+        user::user_controller,
+    },
+    utils::handler::route_not_found,
 };
 
 pub fn config_services(cfg: &mut web::ServiceConfig) {
@@ -12,8 +15,11 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
             // .service(web::resource("/health_checker")
             //     .route(web::get().to(health_checker::health_checker)))
             .service(
-                web::resource("/login")
-                    .route(web::post().to(auth_controller::login)),
+                web::scope("/auth")
+                    .service(
+                        web::resource("/login")
+                            .route(web::post().to(auth_controller::login)),
+                    )
                 // .service(
                 //     web::resource("/logout")
                 //         .route(web::post().to(account_controller::logout)),
@@ -25,5 +31,6 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                 //     .route(web::get().to(account_controller::profile))
                 //     .route(web::put().to(account_controller::update_user))
                 //     .route(web::delete().to(account_controller::delete_user)))
-            ));
+            ))
+        .default_service(web::route().to(route_not_found));
 }

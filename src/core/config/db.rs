@@ -1,5 +1,6 @@
 use std::env;
 
+use diesel::PgConnection;
 use diesel::r2d2::ConnectionManager;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
@@ -8,22 +9,7 @@ use crate::core::types::*;
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 
-// database configuration
-#[derive(Clone)]
-pub struct PostgresDatabase<> {
-    pub pool: Pool,
-}
-
-impl PostgresDatabase {
-    pub fn new() -> Self {
-        let pool = init_db();
-        Self {
-            pool
-        }
-    }
-}
-
-pub fn init_db() -> Pool {
+pub fn init_db() -> DBConn {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not found.");
 
     let pool = init_db_pool(&db_url);
@@ -33,13 +19,13 @@ pub fn init_db() -> Pool {
     return pool;
 }
 
-pub fn init_db_pool(url: &str) -> Pool {
-    let con_manager = ConnectionManager::<Connection>::new(url);
+pub fn init_db_pool(url: &str) -> DBConn {
+    let con_manager = ConnectionManager::<PgConnection>::new(url);
     Pool::builder()
         .build(con_manager)
         .expect("Could not build connection pool.")
 }
 
-pub fn run_migration(conn: &mut Connection) {
+pub fn run_migration(conn: &mut PgConnection) {
     conn.run_pending_migrations(MIGRATIONS).expect("Could not run migrations");
 }

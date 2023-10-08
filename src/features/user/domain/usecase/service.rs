@@ -9,16 +9,17 @@ use crate::features::user::domain::{
     },
 };
 
-pub struct UserService<'user, T>
+#[derive(Clone)]
+pub struct UserService< T>
     where T: IUserRepository
 {
-    pub repository: &'user T,
+    pub repository:  T,
 }
 
-impl<'user, T> UserService<'user, T>
+impl< T> UserService< T>
     where T: IUserRepository
 {
-    pub fn new(repository: &'user T) -> Self {
+    pub fn new(repository:  T) -> Self {
         Self {
             repository,
         }
@@ -26,7 +27,7 @@ impl<'user, T> UserService<'user, T>
 }
 
 #[async_trait]
-impl<'user, T> IUserService for UserService<'user, T>
+impl< T> IUserService for UserService< T>
     where T: IUserRepository
 {
     async fn register(&self, params: RegisterParams) -> AppResult<String> {

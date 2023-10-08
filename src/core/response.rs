@@ -1,3 +1,4 @@
+use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -18,27 +19,27 @@ impl Diagnostic {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ResponseBodyNoData {
+pub struct ResponseBody<T> {
     pub diagnostic: Diagnostic,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<T>,
 }
 
-impl ResponseBodyNoData {
-    pub fn new(diagnostic: Diagnostic) -> ResponseBodyNoData {
-        ResponseBodyNoData {
-            diagnostic,
-        }
+impl<T> Into<HttpResponse> for ResponseBody<T>
+    where
+        T: Serialize,
+{
+    fn into(self) -> HttpResponse {
+        HttpResponse::Ok().json(self)
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ResponseBody<T> {
-    pub diagnostic: Diagnostic,
-    pub data: T,
-}
-
 impl<T> ResponseBody<T> {
-    pub fn new(diagnostic: Diagnostic, data: T) -> ResponseBody<T> {
+    pub fn new(diagnostic: Diagnostic, data: Option<T>) -> ResponseBody<T> {
+        let data = match data {
+            Some(data) => Some(data),
+            None => None,
+        };
         ResponseBody {
             diagnostic,
             data,

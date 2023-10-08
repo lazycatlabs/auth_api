@@ -61,7 +61,7 @@ impl IAuthRepository for AuthRepository {
         };
     }
 
-    async fn update_login_session(&self, params: Uuid, login_session_str: &str) -> bool {
+    fn update_login_session(&self, params: Uuid, login_session_str: &str) -> bool {
         diesel::update(users.find(params))
             .set(login_session.eq(login_session_str.to_string()))
             .execute(&mut self.source.get().unwrap())
@@ -82,7 +82,7 @@ impl IAuthRepository for AuthRepository {
                 if self.update_login_session(
                     user.id,
                     login_session_str.as_str(),
-                ).await {
+                ) {
                     let login_info = LoginInfo {
                         id: user.id.to_string(),
                         email: user.email,
@@ -108,7 +108,7 @@ impl IAuthRepository for AuthRepository {
         Err(APIError::InvalidCredentials)
     }
 
-     fn is_valid_login_session(&self, params: &AuthToken) -> bool {
+    fn is_valid_login_session(&self, params: &AuthToken) -> bool {
         users
             .filter(id.eq(&params.jti))
             .filter(login_session.eq(&params.login_session))

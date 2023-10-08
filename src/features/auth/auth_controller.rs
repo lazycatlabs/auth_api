@@ -28,3 +28,15 @@ pub async fn login(
         Err(e) => Err(e),
     }
 }
+
+pub async fn logout(
+    state: web::Data<AppState>,
+    auth: crate::core::middlewares::auth::AuthMiddleware,
+) -> AppResult<HttpResponse> {
+    let result = state.di_container.auth_service.logout(auth.user.id);
+
+    match result {
+        Ok(_) => Ok(ResponseBody::<()>::success(None).into()),
+        Err(e) => Err(e),
+    }
+}

@@ -69,14 +69,14 @@ pub struct Page<T> {
     pub total: i64,
 }
 
-impl<T> Page<T> {
-    pub fn new(page_number: i32, page_size: i32, total: i64, data: Vec<T>, diagnostic: Diagnostic) -> Page<T> {
-        Page {
-            page_number,
-            page_size,
-            total,
-            data,
-            diagnostic,
-        }
-    }
-}
+// impl<T> Page<T> {
+//     pub fn new(page_number: i32, page_size: i32, total: i64, data: Vec<T>, diagnostic: Diagnostic) -> Page<T> {
+//         Page {
+//             page_number,
+//             page_size,
+//             total,
+//             data,
+//             diagnostic,
+//         }
+//     }
+// }

@@ -14,6 +14,7 @@ use crate::{
         auth::{
             data::models::{
                 auth_token::AuthToken,
+                login_history::LoginHistory,
                 login_info::LoginInfo,
             },
             domain::{
@@ -25,7 +26,12 @@ use crate::{
         user::data::models::user::User,
     },
     schema::{
-        login_history::{self},
+        login_history::{
+            self,
+            dsl::*,
+            id,
+            user_id,
+        },
         users::{self, dsl::*},
     },
 };
@@ -47,25 +53,25 @@ impl AuthRepository {
 
 #[async_trait]
 impl IAuthRepository for AuthRepository {
-    async fn save_login_history(&self, params: Uuid) -> AppResult<usize> {
+    async fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
         // get user information by id
         let now = Utc::now().naive_utc();
-        let login_history_params = LoginHistoryParams { user_id: params, login_timestamp: now };
+        let login_history_params = LoginHistoryParams {
+            user_id: user,
+            ip_addr: login_params.ip_addr.unwrap(),
+            os_info: login_params.os_info,
+            device_info: login_params.device_info,
+            login_timestamp: now,
+        };
         return if let Ok(data) = diesel::insert_into(login_history::table)
             .values(&login_history_params)
-            .execute(&mut self.source.get().unwrap()) {
+            .get_result::<LoginHistory>(&mut self.source.get().unwrap()) {
             Ok(data)
         } else {
             Err(APIError::InternalError)
         };
     }
 
-    fn update_login_session(&self, params: Uuid, login_session_str: &str) -> bool {
-        diesel::update(users.find(params))
-            .set(login_session.eq(login_session_str.to_string()))
-            .execute(&mut self.source.get().unwrap())
-            .is_ok()
-    }
 
     async fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
         if let Ok(user) = users::table
@@ -74,32 +80,21 @@ impl IAuthRepository for AuthRepository {
         {
             if !user.password.is_empty()
                 && verify(&params.password, &user.password).unwrap() {
-                if self.save_login_history(user.id).await.is_err() {
-                    return Err(APIError::InternalError);
-                }
-                let login_session_str = User::generate_login_session();
-                if self.update_login_session(
-                    user.id,
-                    login_session_str.as_str(),
-                ) {
+                return if let Ok(login_session) = self.add_user_session(user.id, params).await {
                     let login_info = LoginInfo {
                         id: user.id.to_string(),
                         email: user.email,
-                        login_session: login_session_str,
+                        login_session: login_session.id,
                     };
 
                     let generate_token = AuthToken::generate_token(&login_info);
-                    return match generate_token {
-                        Ok(token) => {
-                            if login_info.login_session.is_empty() {
-                                Err(APIError::Unauthorized)
-                            } else {
-                                Ok(AuthEntity::new(token))
-                            }
-                        }
+                    match generate_token {
+                        Ok(token) => Ok(AuthEntity::new(token)),
                         Err(e) => { Err(e) }
-                    };
-                }
+                    }
+                } else {
+                    Err(APIError::InternalError)
+                };
             }
             return Err(APIError::InvalidCredentials);
         }
@@ -108,10 +103,10 @@ impl IAuthRepository for AuthRepository {
     }
 
     fn is_valid_login_session(&self, params: &AuthToken) -> bool {
-        users
-            .filter(id.eq(&params.jti))
-            .filter(login_session.eq(&params.login_session))
-            .get_result::<User>(&mut self.source.get().unwrap())
+        login_history
+            .filter(user_id.eq(&params.jti))
+            .filter(id.eq(&params.login_session))
+            .execute(&mut self.source.get().unwrap())
             .is_ok()
     }
 }

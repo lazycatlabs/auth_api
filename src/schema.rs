@@ -2,9 +2,12 @@
 
 diesel::table! {
     login_history (id) {
-        id -> Int4,
+        id -> Uuid,
         user_id -> Uuid,
         login_timestamp -> Timestamp,
+        ip_addr -> Varchar,
+        device_info -> Varchar,
+        os_info -> Varchar,
     }
 }
 
@@ -21,7 +24,6 @@ diesel::table! {
         password -> Varchar,
         #[max_length = 255]
         role -> Varchar,
-        login_session -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }

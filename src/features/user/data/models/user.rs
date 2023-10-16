@@ -24,7 +24,6 @@ pub struct User {
     #[serde(skip_serializing)]
     pub password: String,
     pub role: String,
-    pub login_session: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
@@ -37,9 +36,5 @@ impl User {
         } else {
             Err(APIError::InternalError)
         }
-    }
-    
-    pub(crate) fn generate_login_session() -> String {
-        Uuid::new_v4().to_string()
     }
 }

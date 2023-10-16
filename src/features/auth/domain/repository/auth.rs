@@ -4,7 +4,10 @@ use uuid::Uuid;
 use crate::{
     core::types::AppResult,
     features::auth::{
-        data::models::auth_token::AuthToken,
+        data::models::{
+            auth_token::AuthToken,
+            login_history::LoginHistory,
+        },
         domain::{
             entity::auth::AuthEntity,
             usecase::dto::LoginParams,
@@ -14,8 +17,8 @@ use crate::{
 
 #[async_trait]
 pub trait IAuthRepository: Send + Sync {
-    async fn save_login_history(&self, params: Uuid) -> AppResult<usize>;
-    fn update_login_session(&self, params: Uuid, login_session_str: &str) -> bool;
+    async fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory>;
+    // async fn remove_user_session(&self, user_id: Uuid, login_session: Uuid) -> bool;
     async fn login(&self, params: LoginParams) -> AppResult<AuthEntity>;
     fn is_valid_login_session(&self, params: &AuthToken) -> bool;
 

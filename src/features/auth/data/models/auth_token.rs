@@ -22,7 +22,7 @@ pub struct AuthToken {
     pub iat: i64,
     // expiration
     pub exp: i64,
-    pub login_session: String,
+    pub login_session: Uuid,
 }
 
 impl AuthToken {

@@ -61,11 +61,12 @@ impl IAuthService for AuthService
     }
 
     fn logout(&self, params: Uuid) -> AppResult<()> {
-        if self.auth_repo.update_login_session(params, "") {
-            Ok(())
-        } else {
-            Err(APIError::Unauthorized)
-        }
+        Ok(())
+        // if self.auth_repo.add_user_session(params, "") {
+        //     Ok(())
+        // } else {
+        //     Err(APIError::Unauthorized)
+        // }
     }
 
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {

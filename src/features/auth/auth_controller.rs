@@ -1,5 +1,4 @@
-use actix_web::{HttpResponse, web};
-use actix_web::web::Json;
+use actix_web::{HttpRequest, HttpResponse, web, web::Json};
 
 use crate::{
     core::{
@@ -20,8 +19,15 @@ use crate::{
 pub async fn login(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
+    req: HttpRequest,
 ) -> AppResult<HttpResponse> {
-    let result = state.di_container.auth_service.login(params.0).await;
+    let ip_addr = req.peer_addr().unwrap().ip().to_string();
+    let new_params = LoginParams {
+        ip_addr: Some(ip_addr),
+        ..params.into_inner()
+    };
+
+    let result = state.di_container.auth_service.login(new_params).await;
 
     match result {
         Ok(data) => Ok(ResponseBody::success(Some(data)).into()),

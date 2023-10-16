@@ -11,7 +11,10 @@ use crate::{
 #[diesel(belongs_to(User))]
 #[diesel(table_name = login_history)]
 pub struct LoginHistory {
-    pub id: i32,
+    pub id: Uuid,
     pub user_id: Uuid,
     pub login_timestamp: NaiveDateTime,
+    pub ip_address: String,
+    pub device_info: String,
+    pub os_info: String,
 }

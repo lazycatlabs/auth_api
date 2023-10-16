@@ -10,12 +10,13 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct RegisterParams {
-    #[validate(email)]
+    #[validate(email(message = "Invalid email"))]
     pub email: String,
-    #[validate(length(min = 3, max = 20))]
+    #[validate(length(min = 0, message = "Can't be empty"))]
     pub name: String,
-    #[validate(length(min = 3, max = 20))]
+    #[validate(length(min = 3, max = 20, message = "Password must be between 3 and 20 characters"))]
     pub password: String,
 }
 
@@ -29,7 +30,6 @@ impl From<RegisterParams> for User {
             role: String::from("user"),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
-            login_session: String::from(""),
             photo: String::from("default.png"),
             verified: false,
         }

@@ -53,7 +53,7 @@ impl AuthRepository {
 
 #[async_trait]
 impl IAuthRepository for AuthRepository {
-    async fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
+     fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
         // get user information by id
         let now = Utc::now().naive_utc();
         let login_history_params = LoginHistoryParams {
@@ -94,7 +94,7 @@ impl IAuthRepository for AuthRepository {
     }
 
 
-    async fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
         if let Ok(user) = users::table
             .filter(email.eq(&params.email))
             .get_result::<User>(&mut self.source.get().unwrap())
@@ -102,7 +102,7 @@ impl IAuthRepository for AuthRepository {
             if !user.password.is_empty()
                 && verify(&params.password, &user.password).unwrap() {
                 return if let Ok(login_session) =
-                    self.add_user_session(user.id, params).await {
+                    self.add_user_session(user.id, params) {
                     let login_info = LoginInfo {
                         id: user.id.to_string(),
                         email: user.email,

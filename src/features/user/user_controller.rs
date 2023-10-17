@@ -27,7 +27,7 @@ pub async fn register(
     state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {
-    match state.di_container.user_service.register(params.0).await {
+    match state.di_container.user_service.register(params.0) {
         Ok(_) => Ok(ResponseBody::<()>::success(None).into()),
         Err(e) => Err(e),
     }

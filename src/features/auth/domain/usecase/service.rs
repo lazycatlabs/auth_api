@@ -50,12 +50,9 @@ impl AuthService {
 #[async_trait]
 impl IAuthService for AuthService
 {
-    async fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+    fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
         match params.validate() {
-            Ok(_) => {
-                let result = self.auth_repo.login(params).await?;
-                Ok(result)
-            }
+            Ok(_) => self.auth_repo.login(params),
             Err(e) => Err(APIError::BadRequest { message: e.to_string() })
         }
     }
@@ -69,7 +66,10 @@ impl IAuthService for AuthService
     }
 
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
-        if self.auth_repo.is_valid_login_session(params.claims.jti, params.claims.login_session) {
+        if self.auth_repo.is_valid_login_session(
+            params.claims.jti,
+            params.claims.login_session,
+        ) {
             Ok(params.claims.jti)
         } else {
             Err(APIError::Unauthorized)
@@ -77,6 +77,6 @@ impl IAuthService for AuthService
     }
 
     fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
-        Ok(self.auth_repo.get_user_session(user)?)
+        self.auth_repo.get_user_session(user)
     }
 }

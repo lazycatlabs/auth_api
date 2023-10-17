@@ -40,7 +40,7 @@ impl UserRepository {
 
 #[async_trait]
 impl IUserRepository for UserRepository {
-    async fn create(&self, params: RegisterParams) -> AppResult<String> {
+    fn create(&self, params: RegisterParams) -> AppResult<String> {
         let mut user = User::from(params);
         let _ = user.hash_password();
 

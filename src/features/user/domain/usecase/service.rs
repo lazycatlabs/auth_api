@@ -40,12 +40,9 @@ impl UserService
 #[async_trait]
 impl IUserService for UserService
 {
-    async fn register(&self, params: RegisterParams) -> AppResult<String> {
+    fn register(&self, params: RegisterParams) -> AppResult<String> {
         match params.validate() {
-            Ok(_) => {
-                let result = self.user_repo.create(params).await?;
-                Ok(result)
-            }
+            Ok(_) => self.user_repo.create(params),
             Err(e) => Err(APIError::BadRequest { message: e.to_string() })
         }
     }

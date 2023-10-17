@@ -11,7 +11,7 @@ use crate::{
 
 #[async_trait]
 pub trait IUserRepository: Send + Sync {
-    async fn create(&self, params: RegisterParams) -> AppResult<String>;
+    fn create(&self, params: RegisterParams) -> AppResult<String>;
     fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity>;
     fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity>;
     fn delete(&self, user_id: Uuid) -> AppResult<String>;

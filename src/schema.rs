@@ -8,6 +8,7 @@ diesel::table! {
         ip_addr -> Varchar,
         device_info -> Varchar,
         os_info -> Varchar,
+        fcm_token -> Varchar,
     }
 }
 

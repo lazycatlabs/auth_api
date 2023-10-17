@@ -6,5 +6,6 @@ CREATE TABLE login_history
     login_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ip_addr VARCHAR NOT NULL,
     device_info VARCHAR NOT NULL,
-    os_info VARCHAR NOT NULL
+    os_info VARCHAR NOT NULL,
+    fcm_token VARCHAR NOT NULL
 );

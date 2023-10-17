@@ -11,7 +11,6 @@ use crate::{
         types::AppResult,
     },
     features::{
-        user::domain::repository::user::IUserRepository,
         auth::{
             data::models::auth_token::AuthToken,
             domain::{
@@ -23,9 +22,9 @@ use crate::{
                 },
             },
         },
-    }
+        user::domain::repository::user::IUserRepository,
+    },
 };
-
 
 #[derive(Clone)]
 pub struct AuthService
@@ -60,17 +59,16 @@ impl IAuthService for AuthService
         }
     }
 
-    fn logout(&self, params: Uuid) -> AppResult<()> {
-        Ok(())
-        // if self.auth_repo.add_user_session(params, "") {
-        //     Ok(())
-        // } else {
-        //     Err(APIError::Unauthorized)
-        // }
+    fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()> {
+        if self.auth_repo.remove_user_session(user, login_session) {
+            Ok(())
+        } else {
+            Err(APIError::InvalidCredentials)
+        }
     }
 
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
-        if self.auth_repo.is_valid_login_session(&params.claims) {
+        if self.auth_repo.is_valid_login_session(params.claims.jti, params.claims.login_session) {
             Ok(params.claims.jti)
         } else {
             Err(APIError::Unauthorized)

@@ -17,4 +17,5 @@ pub struct LoginHistory {
     pub ip_address: String,
     pub device_info: String,
     pub os_info: String,
+    pub fcm_token:String,
 }

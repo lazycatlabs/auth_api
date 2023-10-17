@@ -8,6 +8,7 @@ use base64::Engine;
 use base64::engine::general_purpose;
 use dotenv_codegen::dotenv;
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
+use uuid::Uuid;
 
 use crate::{
     core::{
@@ -33,6 +34,7 @@ use crate::{
 
 pub struct AuthMiddleware {
     pub user: UserEntity,
+    pub login_session: Uuid,
 }
 
 
@@ -54,7 +56,8 @@ impl FromRequest for AuthMiddleware {
                             if let Ok(user) = di.user_service.find_user_by_id(user_id) {
                                 return Box::pin(async move {
                                     Ok(AuthMiddleware {
-                                        user
+                                        user,
+                                        login_session: token_data.claims.login_session,
                                     })
                                 });
                             }

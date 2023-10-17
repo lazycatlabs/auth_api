@@ -2,7 +2,10 @@ use actix_web::{HttpRequest, HttpResponse, web, web::Json};
 
 use crate::{
     core::{
-        middlewares::state::AppState,
+        middlewares::{
+            auth::AuthMiddleware,
+            state::AppState,
+        },
         response::ResponseBody,
         types::AppResult,
     },
@@ -27,9 +30,7 @@ pub async fn login(
         ..params.into_inner()
     };
 
-    let result = state.di_container.auth_service.login(new_params).await;
-
-    match result {
+    match state.di_container.auth_service.login(new_params).await {
         Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
         Err(e) => Err(e),
     }
@@ -37,11 +38,9 @@ pub async fn login(
 
 pub async fn logout(
     state: web::Data<AppState>,
-    auth: crate::core::middlewares::auth::AuthMiddleware,
+    auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    let result = state.di_container.auth_service.logout(auth.user.id);
-
-    match result {
+    match state.di_container.auth_service.logout(auth.user.id, auth.login_session) {
         Ok(_) => Ok(ResponseBody::<()>::success(None).into()),
         Err(e) => Err(e),
     }

@@ -12,10 +12,12 @@ use crate::{
         },
     },
 };
+use crate::features::auth::data::models::login_history::LoginHistory;
 
 #[async_trait]
 pub trait IAuthService: Send + Sync {
     async fn login(&self, params: LoginParams) -> AppResult<AuthEntity>;
     fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()>;
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid>;
+    fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>>;
 }

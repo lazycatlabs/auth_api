@@ -45,3 +45,13 @@ pub async fn logout(
         Err(e) => Err(e),
     }
 }
+
+pub async fn login_session(
+    state: web::Data<AppState>,
+    auth: AuthMiddleware,
+) -> AppResult<HttpResponse> {
+    match state.di_container.auth_service.login_session(auth.user.id) {
+        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
+        Err(e) => Err(e),
+    }
+}

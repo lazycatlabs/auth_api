@@ -83,6 +83,16 @@ impl IAuthRepository for AuthRepository {
         }
     }
 
+    fn get_user_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
+        if let Ok(data) = login_history
+            .filter(user_id.eq(user))
+            .load::<LoginHistory>(&mut self.source.get().unwrap()) {
+            Ok(data)
+        } else {
+            Err(APIError::InternalError)
+        }
+    }
+
 
     async fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
         if let Ok(user) = users::table

@@ -25,6 +25,7 @@ use crate::{
         user::domain::repository::user::IUserRepository,
     },
 };
+use crate::features::auth::data::models::login_history::LoginHistory;
 
 #[derive(Clone)]
 pub struct AuthService
@@ -73,5 +74,9 @@ impl IAuthService for AuthService
         } else {
             Err(APIError::Unauthorized)
         }
+    }
+
+    fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
+        Ok(self.auth_repo.get_user_session(user)?)
     }
 }

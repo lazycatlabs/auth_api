@@ -14,13 +14,14 @@ use crate::{
         auth::{
             data::models::{
                 auth_token::AuthToken,
+                general_token::GeneralToken,
                 login_history::LoginHistory,
                 login_info::LoginInfo,
             },
             domain::{
                 entity::auth::AuthEntity,
                 repository::auth::IAuthRepository,
-                usecase::dto::{LoginHistoryParams, LoginParams},
+                usecase::dto::{GeneralTokenParams, LoginHistoryParams, LoginParams},
             },
         },
         user::data::models::user::User,
@@ -53,7 +54,7 @@ impl AuthRepository {
 
 #[async_trait]
 impl IAuthRepository for AuthRepository {
-     fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
+    fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
         // get user information by id
         let now = Utc::now().naive_utc();
         let login_history_params = LoginHistoryParams {
@@ -94,7 +95,7 @@ impl IAuthRepository for AuthRepository {
     }
 
 
-     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+    fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
         if let Ok(user) = users::table
             .filter(email.eq(&params.email))
             .get_result::<User>(&mut self.source.get().unwrap())
@@ -121,6 +122,17 @@ impl IAuthRepository for AuthRepository {
         }
 
         Err(APIError::InvalidCredentials)
+    }
+
+    fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthEntity> {
+        if params.verify() {
+            match GeneralToken::generate_general_token() {
+                Ok(token) => Ok(AuthEntity::new(token)),
+                Err(e) => { Err(e) }
+            }
+        } else {
+            Err(APIError::InvalidCredentials)
+        }
     }
 
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool {

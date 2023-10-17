@@ -18,11 +18,24 @@ use crate::{
         },
     },
 };
+use crate::core::middlewares::general::GeneralMiddleware;
+use crate::features::auth::domain::usecase::dto::GeneralTokenParams;
+
+pub async fn general_token(
+    state: web::Data<AppState>,
+    params: Json<GeneralTokenParams>,
+) -> AppResult<HttpResponse>{
+    match state.di_container.auth_service.general_token(params.0) {
+        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
+        Err(e) => Err(e),
+    }
+}
 
 pub async fn login(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
     req: HttpRequest,
+    _: GeneralMiddleware,
 ) -> AppResult<HttpResponse> {
     let ip_addr = req.peer_addr().unwrap().ip().to_string();
     let new_params = LoginParams {
@@ -30,7 +43,7 @@ pub async fn login(
         ..params.into_inner()
     };
 
-    match state.di_container.auth_service.login(new_params).await {
+    match state.di_container.auth_service.login(new_params) {
         Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
         Err(e) => Err(e),
     }

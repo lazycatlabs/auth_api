@@ -20,6 +20,10 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("/auth")
                     .service(
+                        web::resource("/general")
+                            .route(web::post().to(auth_controller::general_token)),
+                    )
+                    .service(
                         web::resource("/login")
                             .route(web::post().to(auth_controller::login)),
                     )

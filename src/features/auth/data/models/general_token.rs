@@ -3,40 +3,34 @@ use chrono::{Duration, Utc};
 use dotenv_codegen::dotenv;
 use jsonwebtoken::{Algorithm, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::{
     core::{
         error::APIError,
         types::AppResult,
     },
-    features::auth::data::models::login_info::LoginInfo,
 };
 
-#[derive(Serialize, Deserialize)]
-pub struct AuthToken {
-    pub jti: Uuid,
+#[derive(Serialize, Deserialize,Debug)]
+pub struct GeneralToken {
     // audience
     pub aud: String,
     // issued at
     pub iat: i64,
     // expiration
     pub exp: i64,
-    pub login_session: Uuid,
 }
 
-impl AuthToken {
-    pub fn generate_token(login: &LoginInfo) -> AppResult<String> {
-        let bytes_private_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PRIVATE_KEY")).unwrap();
+impl GeneralToken {
+    pub fn generate_general_token() -> AppResult<String> {
+        let bytes_private_key = general_purpose::STANDARD.decode(dotenv!("GENERAL_TOKEN_PRIVATE_KEY")).unwrap();
         let decoded_private_key = String::from_utf8(bytes_private_key).unwrap();
         let now = Utc::now();
         let exp = now + Duration::days(7); // 7 days
-        let payload = AuthToken {
-            jti: login.id.parse().unwrap(),
+        let payload = GeneralToken {
             aud: dotenv!("CLIENT_ID").to_string(),
             iat: now.timestamp(),
-            exp: exp.timestamp(),
-            login_session: login.login_session.clone(),
+            exp:exp.timestamp(),
         };
         jsonwebtoken::encode(
             &Header::new(Algorithm::RS256),

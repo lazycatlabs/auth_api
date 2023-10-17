@@ -14,7 +14,7 @@ pub struct LoginHistoryParams {
     pub ip_addr: String,
     pub device_info: String,
     pub os_info: String,
-    pub fcm_token:String,
+    pub fcm_token: String,
 }
 
 #[derive(Serialize, Deserialize, Validate, Debug)]
@@ -32,4 +32,21 @@ pub struct LoginParams {
     pub os_info: String,
     #[validate(length(min = 0, message = "Can't be empty"))]
     pub fcm_token: String,
+}
+
+#[derive(Serialize, Deserialize, Validate, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct GeneralTokenParams {
+    #[validate(length(min = 0, message = "Can't be empty"))]
+    pub client_id: Option<String>,
+    #[validate(length(min = 0, message = "Can't be empty"))]
+    pub client_secret: Option<String>,
+}
+
+impl GeneralTokenParams {
+    pub fn verify(&self) -> bool {
+        self.validate().is_ok()
+            && self.client_id.as_deref() == Some(env!("CLIENT_ID"))
+            && self.client_secret.as_deref() == Some(env!("CLIENT_SECRET"))
+    }
 }

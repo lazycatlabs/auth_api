@@ -50,3 +50,17 @@ impl GeneralTokenParams {
             && self.client_secret.as_deref() == Some(env!("CLIENT_SECRET"))
     }
 }
+
+
+#[derive(Serialize, Deserialize, Validate, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdatePasswordParams {
+    #[validate(length(min = 1, message = "Can't be empty"))]
+    pub old_password: String,
+    #[validate(length(min = 6, message = "Must be at least 6 characters"),
+    must_match(other = "confirm_password", message = "Password not match"))]
+    pub new_password: String,
+    #[validate(length(min = 6, message = "Must be at least 6 characters"),
+    must_match(other = "new_password", message = "Password not match"))]
+    pub confirm_password: String,
+}

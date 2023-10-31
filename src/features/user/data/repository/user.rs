@@ -60,6 +60,7 @@ impl IUserRepository for UserRepository {
     }
 
     fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
+        println!("find_user_by_id {:?}",user_id);
         match users::table
             .filter(id.eq(user_id))
             .get_result::<User>(&mut self.source.get().unwrap()) {

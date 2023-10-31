@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use bcrypt::verify;
+use bcrypt::{DEFAULT_COST, verify};
 use chrono::Utc;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use diesel::prelude::*;
@@ -21,7 +21,7 @@ use crate::{
             domain::{
                 entity::auth::AuthEntity,
                 repository::auth::IAuthRepository,
-                usecase::dto::{GeneralTokenParams, LoginHistoryParams, LoginParams},
+                usecase::dto::*,
             },
         },
         user::data::models::user::User,
@@ -30,10 +30,10 @@ use crate::{
         login_history::{
             self,
             dsl::*,
-            id,
-            user_id,
+            id as login_history_id,
+            user_id as login_history_user_id,
         },
-        users::{self, dsl::*},
+        users::{self, dsl::*, id as user_id},
     },
 };
 
@@ -76,7 +76,7 @@ impl IAuthRepository for AuthRepository {
 
     fn remove_user_session(&self, user: Uuid, login_session: Uuid) -> bool {
         if self.is_valid_login_session(user, login_session) {
-            diesel::delete(login_history.filter(id.eq(login_session)))
+            diesel::delete(login_history.filter(login_history_id.eq(login_session)))
                 .execute(&mut self.source.get().unwrap())
                 .expect("Error deleting login history") > 0
         } else {
@@ -86,7 +86,7 @@ impl IAuthRepository for AuthRepository {
 
     fn get_user_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
         if let Ok(data) = login_history
-            .filter(user_id.eq(user))
+            .filter(login_history_id.eq(user))
             .load::<LoginHistory>(&mut self.source.get().unwrap()) {
             Ok(data)
         } else {
@@ -136,10 +136,30 @@ impl IAuthRepository for AuthRepository {
     }
 
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool {
-        login_history
-            .filter(user_id.eq(&user))
-            .filter(id.eq(&login_session))
+        login_history::table
+            .filter(login_history_user_id.eq(&user))
+            .filter(login_history_id.eq(&login_session))
             .execute(&mut self.source.get().unwrap())
             .is_ok()
+    }
+
+    fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
+        if let Ok(user) = users::table
+            .filter(user_id.eq(user))
+            .get_result::<User>(&mut self.source.get().unwrap()) {
+            if !params.old_password.is_empty()
+                && verify(&params.old_password, &user.password).unwrap() {
+                let new_password = bcrypt::hash(&params.new_password, DEFAULT_COST).unwrap();
+                diesel::update(users::table)
+                    .filter(user_id.eq(&user.id))
+                    .set(password.eq(&new_password))
+                    .execute(&mut self.source.get().unwrap())
+                    .expect("Error updating user password");
+                return Ok(());
+            }
+            return Err(APIError::InvalidCredentials);
+        } else {
+            Err(APIError::InternalError)
+        }
     }
 }

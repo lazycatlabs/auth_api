@@ -7,11 +7,10 @@ use crate::{
         data::models::login_history::LoginHistory,
         domain::{
             entity::auth::AuthEntity,
-            usecase::dto::LoginParams,
+            usecase::dto::*,
         },
     },
 };
-use crate::features::auth::domain::usecase::dto::GeneralTokenParams;
 
 #[async_trait]
 pub trait IAuthRepository: Send + Sync {
@@ -21,5 +20,6 @@ pub trait IAuthRepository: Send + Sync {
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity>;
     fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthEntity>;
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool;
+    fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()>;
 }
 

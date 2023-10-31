@@ -26,7 +26,7 @@ use crate::{
     },
 };
 use crate::features::auth::data::models::login_history::LoginHistory;
-use crate::features::auth::domain::usecase::dto::GeneralTokenParams;
+use crate::features::auth::domain::usecase::dto::{GeneralTokenParams, UpdatePasswordParams};
 
 #[derive(Clone)]
 pub struct AuthService
@@ -71,8 +71,10 @@ impl IAuthService for AuthService
             params.claims.jti,
             params.claims.login_session,
         ) {
+            println!("isValidLoginSession");
             Ok(params.claims.jti)
         } else {
+            println!("isInValidLoginSession");
             Err(APIError::Unauthorized)
         }
     }
@@ -81,7 +83,19 @@ impl IAuthService for AuthService
         self.auth_repo.get_user_session(user)
     }
 
-    fn general_token(&self,token:GeneralTokenParams) -> AppResult<AuthEntity> {
+    fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthEntity> {
         self.auth_repo.general_token(token)
+    }
+
+    fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
+        match params.validate() {
+            Ok(_) => {
+                if params.old_password == params.new_password {
+                    return Err(APIError::BadRequest { message: "Old password and new password must be different".to_string() });
+                }
+                self.auth_repo.update_password(user, params)
+            }
+            Err(e) => Err(APIError::BadRequest { message: e.to_string() })
+        }
     }
 }

@@ -11,7 +11,7 @@ use crate::{
         },
         domain::{
             entity::auth::AuthEntity,
-            usecase::dto::{GeneralTokenParams, LoginParams},
+            usecase::dto::*,
         },
     },
 };
@@ -23,4 +23,5 @@ pub trait IAuthService: Send + Sync {
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid>;
     fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>>;
     fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthEntity>;
+    fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()>;
 }

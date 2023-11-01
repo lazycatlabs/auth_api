@@ -74,10 +74,12 @@ impl FromRequest for AuthMiddleware {
 pub fn decode_token(jwt: &String) -> AppResult<TokenData<AuthToken>> {
     let bytes_public_key = general_purpose::STANDARD.decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY")).unwrap();
     let decoded_public_key = String::from_utf8(bytes_public_key).unwrap();
+    let mut validation = Validation::new(Algorithm::RS256);
+    validation.set_audience(&[dotenv!("CLIENT_ID")]);
     jsonwebtoken::decode::<AuthToken>(
         jwt,
         &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
-        &Validation::new(Algorithm::RS256),
+        &validation,
     ).map_err(|_e| APIError::Unauthorized)
 }
 

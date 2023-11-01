@@ -11,6 +11,8 @@ use crate::core::response::{Diagnostic, ResponseBody};
 pub enum APIError {
     #[display(fmt = "Unauthorized.")]
     Unauthorized,
+    #[display(fmt = "The token is not intended for this application.")]
+    InvalidAppCredentials,
     #[display(fmt = "Invalid credentials.")]
     InvalidCredentials,
     #[display(fmt = "User does not exist.")]
@@ -27,6 +29,7 @@ impl error::ResponseError for APIError {
             APIError::BadRequest { .. } => StatusCode::BAD_REQUEST,
             APIError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             APIError::Unauthorized => StatusCode::UNAUTHORIZED,
+            APIError::InvalidAppCredentials => StatusCode::UNAUTHORIZED,
             APIError::UserNotFoundError => StatusCode::NOT_FOUND,
             APIError::InternalError => StatusCode::INTERNAL_SERVER_ERROR,
         }

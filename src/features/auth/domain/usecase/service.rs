@@ -12,12 +12,15 @@ use crate::{
     },
     features::{
         auth::{
-            data::models::auth_token::AuthToken,
+            data::models::{
+                auth_token::AuthToken,
+                login_history::LoginHistory,
+            },
             domain::{
                 entity::auth::AuthEntity,
                 repository::auth::IAuthRepository,
                 usecase::{
-                    dto::LoginParams,
+                    dto::*,
                     interface::IAuthService,
                 },
             },
@@ -25,8 +28,6 @@ use crate::{
         user::domain::repository::user::IUserRepository,
     },
 };
-use crate::features::auth::data::models::login_history::LoginHistory;
-use crate::features::auth::domain::usecase::dto::{GeneralTokenParams, UpdatePasswordParams};
 
 #[derive(Clone)]
 pub struct AuthService

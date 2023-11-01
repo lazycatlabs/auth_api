@@ -12,14 +12,12 @@ use crate::{
     features::auth::{
         domain::{
             usecase::{
-                dto::LoginParams,
+                dto::*,
                 interface::IAuthService,
             },
         },
     },
 };
-use crate::core::middlewares::general::GeneralMiddleware;
-use crate::features::auth::domain::usecase::dto::{GeneralTokenParams, UpdatePasswordParams};
 
 pub async fn general_token(
     state: web::Data<AppState>,
@@ -35,7 +33,7 @@ pub async fn login(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
     req: HttpRequest,
-    _: GeneralMiddleware,
+    // _: GeneralMiddleware,
 ) -> AppResult<HttpResponse> {
     let ip_addr = req.peer_addr().unwrap().ip().to_string();
     let new_params = LoginParams {

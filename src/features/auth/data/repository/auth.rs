@@ -83,8 +83,9 @@ impl IAuthRepository for AuthRepository {
     }
 
     fn get_user_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
+        println!("user_id {:?}", user);
         if let Ok(data) = login_history
-            .filter(login_history_id.eq(user))
+            .filter(login_history_user_id.eq(user))
             .load::<LoginHistory>(&mut self.source.get().unwrap()) {
             Ok(data)
         } else {

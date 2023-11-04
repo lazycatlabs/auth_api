@@ -48,6 +48,9 @@ cargo clean
 cargo build
 ```
 
+## API Collection 📚
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://documenter.getpostman.com/view/27178159/2s9YXe8jwf)
+
 ## TODO 📝
 
 - [x] Health Check

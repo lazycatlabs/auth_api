@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -37,7 +36,6 @@ impl UserService
     }
 }
 
-#[async_trait]
 impl IUserService for UserService
 {
     fn register(&self, params: RegisterParams) -> AppResult<String> {

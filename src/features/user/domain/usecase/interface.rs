@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::{
@@ -9,7 +8,6 @@ use crate::{
     },
 };
 
-#[async_trait]
 pub trait IUserService: Send + Sync {
     fn register(&self, params: RegisterParams) -> AppResult<String>;
     fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity>;

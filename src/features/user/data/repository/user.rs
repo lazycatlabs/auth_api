@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use chrono::Utc;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use diesel::prelude::*;
@@ -38,7 +37,6 @@ impl UserRepository {
     }
 }
 
-#[async_trait]
 impl IUserRepository for UserRepository {
     fn create(&self, params: RegisterParams) -> AppResult<String> {
         let mut user = User::from(params);

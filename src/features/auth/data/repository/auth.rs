@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use bcrypt::{DEFAULT_COST, verify};
 use chrono::Utc;
 use diesel::{ExpressionMethods, RunQueryDsl};
@@ -52,7 +51,6 @@ impl AuthRepository {
     }
 }
 
-#[async_trait]
 impl IAuthRepository for AuthRepository {
     fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
         // get user information by id

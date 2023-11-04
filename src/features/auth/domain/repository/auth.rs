@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use uuid::Uuid;
 
 use crate::{
@@ -12,7 +11,6 @@ use crate::{
     },
 };
 
-#[async_trait]
 pub trait IAuthRepository: Send + Sync {
     fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory>;
     fn remove_user_session(&self, user: Uuid, login_session: Uuid) -> bool;

@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use jsonwebtoken::TokenData;
 use uuid::Uuid;
 
@@ -16,7 +15,6 @@ use crate::{
     },
 };
 
-#[async_trait]
 pub trait IAuthService: Send + Sync {
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity>;
     fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()>;

@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use jsonwebtoken::TokenData;
 use uuid::Uuid;
 use validator::Validate;
@@ -49,7 +48,6 @@ impl AuthService {
     }
 }
 
-#[async_trait]
 impl IAuthService for AuthService
 {
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {

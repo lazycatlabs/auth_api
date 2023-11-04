@@ -42,8 +42,6 @@ impl IUserRepository for UserRepository {
         let mut user = User::from(params);
         let _ = user.hash_password();
 
-        println!("create ");
-
         match diesel::insert_into(users::table)
             .values(&user)
             .execute(&mut self.source.get().unwrap())
@@ -58,7 +56,6 @@ impl IUserRepository for UserRepository {
     }
 
     fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
-        println!("find_user_by_id {:?}",user_id);
         match users::table
             .filter(id.eq(user_id))
             .get_result::<User>(&mut self.source.get().unwrap()) {
@@ -104,10 +101,7 @@ impl IUserRepository for UserRepository {
             match diesel::delete(users.find(user.id))
                 .execute(&mut self.source.get().unwrap()) {
                 Ok(_) => Ok(format!("User with email '{}' deleted successfully", user.email)),
-                Err(err) => {
-                    println!("err: {:?}", err);
-                    Err(APIError::InternalError)
-                }
+                Err(_) => Err(APIError::InternalError)
             }
         } else {
             Err(APIError::UserNotFoundError)

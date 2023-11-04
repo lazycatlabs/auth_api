@@ -70,10 +70,8 @@ impl IAuthService for AuthService
             params.claims.jti,
             params.claims.login_session,
         ) {
-            println!("isValidLoginSession");
             Ok(params.claims.jti)
         } else {
-            println!("isInValidLoginSession");
             Err(APIError::Unauthorized)
         }
     }

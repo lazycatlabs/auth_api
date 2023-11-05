@@ -1,3 +1,6 @@
+
+![Auth API](https://github.com/lazycatlabs/auth_api/assets/1531684/4911962d-e8a2-49e3-a615-17edfa8ea913)
+
 Auth API written in Rust 🦀 using Actix-Web framework
 
 This is a simple API that allows you to create users and authenticate them using JWT tokens.
@@ -41,7 +44,7 @@ If you face an error like this
 ```bash
 note: ld: library 'pq' not found
 ```
-you can fix it by run this command
+you can fix it by running this command
 ```bash
 brew link --force libpq
 cargo clean
@@ -58,7 +61,7 @@ cargo build
 - [x] Auth Token
 - [x] Register
 - [x] Login
-- [ ] Login with Social (Google,Apple)
+- [ ] Login with Social (Google, Apple)
 - [x] Profile
     - [x] Get
     - [x] Update
@@ -70,6 +73,7 @@ cargo build
 - [x] Update password
 - [ ] Email verification
 - [ ] Create Tests
+- [ ] Create docker-compose to build the project
 
 ---
 <h3 align="center">❤️ Buy me coffee if you love my works ☕️</h3>

@@ -7,36 +7,36 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-cors = "0.6.4"
-actix-web = "4.4.0"
-actix-rt = "2.9.0"
-serde_json = "1.0.107"
-env_logger = "0.10.0"
+actix-cors = "0.7.0"
+actix-web = "4.8.0"
+actix-rt = "2.10.0"
+serde_json = "1.0.120"
+env_logger = "0.11.3"
 dotenv = "0.15.0"
 dotenv_codegen = "0.15.0"
-jsonwebtoken = "9.1.0"
-base64 = "0.21.4"
-derive_more = "0.99.17"
-cargo-watch = "8.4.1"
-diesel_migrations = "2.1.0"
-bcrypt = "0.15.0"
+jsonwebtoken = "9.3.0"
+base64 = "0.22.1"
+derive_more = "0.99.18"
+cargo-watch = "8.5.2"
+diesel_migrations = "2.2.0"
+bcrypt = "0.15.1"
 
 [dependencies.diesel]
-version = "2.1.1"
+version = "2.2.1"
 features = ["postgres", "r2d2", "uuid", "chrono"]
 
 [dependencies.serde]
-version = "1.0.188"
+version = "1.0.204"
 features = ["derive"]
 
 [dependencies.chrono]
-version = "0.4.31"
+version = "0.4.38"
 features = ["serde"]
 
 [dependencies.uuid]
-version = "1.4.1"
+version = "1.10.0"
 features = ["serde", "v4"]
 
 [dependencies.validator]
-version = "0.16.1"
+version = "0.18.1"
 features = ["derive"]

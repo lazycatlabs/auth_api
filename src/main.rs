@@ -4,10 +4,13 @@ use dotenv::dotenv;
 
 use crate::core::config::server::run;
 
-mod schema;
-mod features;
-mod utils;
 mod core;
+mod features;
+mod schema;
+mod utils;
+
+#[macro_use]
+extern crate serde;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {

@@ -3,10 +3,7 @@ use diesel::{Associations, Identifiable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{
-    features::user::data::models::user::User,
-    schema::login_history,
-};
+use crate::{features::user::data::models::user::User, schema::login_history};
 
 #[derive(Identifiable, Associations, Queryable, Serialize, Deserialize)]
 #[diesel(belongs_to(User))]

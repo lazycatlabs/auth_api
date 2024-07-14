@@ -1,12 +1,11 @@
 use dotenv_codegen::dotenv;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AuthEntity {
-    pub token: String,
-    pub token_type: String,
-}
+use crate::camel_case_struct;
+
+camel_case_struct!(AuthEntity {
+    token: String,
+    token_type: String
+});
 
 impl AuthEntity {
     pub fn new(token: String) -> Self {

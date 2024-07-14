@@ -32,7 +32,4 @@ diesel::table! {
 
 diesel::joinable!(login_history -> users (user_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    login_history,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(login_history, users,);

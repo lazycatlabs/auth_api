@@ -1,7 +1,4 @@
-use crate::core::{
-    config::di::DiContainer,
-    types::DBConn,
-};
+use crate::core::{config::di::DiContainer, types::DBConn};
 
 #[derive(Clone)]
 pub struct AppState {

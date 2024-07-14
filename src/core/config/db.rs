@@ -1,15 +1,11 @@
 use std::env;
 
-use diesel::{
-    PgConnection,
-    r2d2::ConnectionManager,
-};
+use diesel::{r2d2::ConnectionManager, PgConnection};
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 
 use crate::core::types::*;
 
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
-
 
 pub fn init_db() -> DBConn {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL not found.");
@@ -29,5 +25,6 @@ pub fn init_db_pool(url: &str) -> DBConn {
 }
 
 pub fn run_migration(conn: &mut PgConnection) {
-    conn.run_pending_migrations(MIGRATIONS).expect("Could not run migrations");
+    conn.run_pending_migrations(MIGRATIONS)
+        .expect("Could not run migrations");
 }

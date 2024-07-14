@@ -4,10 +4,7 @@ use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::{
-    features::user::data::models::user::User,
-    schema::users,
-};
+use crate::{features::user::data::models::user::User, schema::users};
 
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
@@ -16,7 +13,11 @@ pub struct RegisterParams {
     pub email: String,
     #[validate(length(min = 0, message = "Can't be empty"))]
     pub name: String,
-    #[validate(length(min = 3, max = 20, message = "Password must be between 3 and 20 characters"))]
+    #[validate(length(
+        min = 3,
+        max = 20,
+        message = "Password must be between 3 and 20 characters"
+    ))]
     pub password: String,
 }
 
@@ -35,7 +36,6 @@ impl From<RegisterParams> for User {
         }
     }
 }
-
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
 #[diesel(table_name = users)]

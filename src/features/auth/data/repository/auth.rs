@@ -50,74 +50,63 @@ impl IAuthRepository for AuthRepository {
             login_timestamp: now,
             fcm_token: login_params.fcm_token,
         };
-        return if let Ok(data) = diesel::insert_into(login_history::table)
+
+        diesel::insert_into(login_history::table)
             .values(&login_history_params)
             .get_result::<LoginHistory>(&mut self.source.get().unwrap())
-        {
-            Ok(data)
-        } else {
-            Err(APIError::InternalError)
-        };
+            .map_err(|_| APIError::InternalError)
     }
 
     fn remove_user_session(&self, user: Uuid, login_session: Uuid) -> bool {
-        if self.is_valid_login_session(user, login_session) {
-            diesel::delete(login_history.filter(login_history_id.eq(login_session)))
+        self.is_valid_login_session(user, login_session)
+            .then(|| {
+                diesel::delete(
+                    login_history::table
+                        .filter(login_history_user_id.eq(user))
+                        .filter(login_history_id.eq(login_session)),
+                )
                 .execute(&mut self.source.get().unwrap())
-                .expect("Error deleting login history")
-                > 0
-        } else {
-            false
-        }
+                .map(|effected_row| effected_row > 0)
+                .unwrap_or(false)
+            })
+            .unwrap_or(false)
     }
 
     fn get_user_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
-        if let Ok(data) = login_history
+        login_history
             .filter(login_history_user_id.eq(user))
             .load::<LoginHistory>(&mut self.source.get().unwrap())
-        {
-            Ok(data)
-        } else {
-            Err(APIError::InternalError)
-        }
+            .map_err(|_| APIError::InternalError)
     }
 
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
-        if let Ok(user) = users::table
+        users::table
             .filter(email.eq(&params.email))
             .get_result::<User>(&mut self.source.get().unwrap())
-        {
-            if !user.password.is_empty() && verify(&params.password, &user.password).unwrap() {
-                return if let Ok(login_session) = self.add_user_session(user.id, params) {
-                    let login_info = LoginInfo {
-                        id: user.id.to_string(),
-                        email: user.email,
-                        login_session: login_session.id,
-                    };
-
-                    match AuthToken::generate_token(&login_info) {
-                        Ok(token) => Ok(AuthEntity::new(token)),
-                        Err(e) => Err(e),
-                    }
-                } else {
-                    Err(APIError::InternalError)
-                };
-            }
-            return Err(APIError::InvalidCredentials);
-        }
-
-        Err(APIError::InvalidCredentials)
+            .map(|user| {
+                (!user.password.is_empty() && verify(&params.password, &user.password).unwrap())
+                    .then(|| {
+                        self.add_user_session(user.id, params)
+                            .map(|login_session| {
+                                let login_info = LoginInfo {
+                                    id: user.id.to_string(),
+                                    email: user.email,
+                                    login_session: login_session.id,
+                                };
+                                AuthToken::generate_token(&login_info).map(AuthEntity::new)
+                            })
+                            .unwrap_or(Err(APIError::InternalError))
+                    })
+                    .unwrap_or(Err(APIError::InvalidCredentials))
+            })
+            .map_err(|_| APIError::UserNotFoundError)?
     }
 
     fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthEntity> {
-        if params.verify() {
-            match GeneralToken::generate_general_token() {
-                Ok(token) => Ok(AuthEntity::new(token)),
-                Err(e) => Err(e),
-            }
-        } else {
-            Err(APIError::InvalidCredentials)
-        }
+        params
+            .verify()
+            .then(|| GeneralToken::generate_general_token().map(AuthEntity::new))
+            .unwrap_or(Err(APIError::InvalidCredentials))
     }
 
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool {
@@ -129,24 +118,21 @@ impl IAuthRepository for AuthRepository {
     }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
-        if let Ok(user) = users::table
+        users::table
             .filter(user_id.eq(user))
             .get_result::<User>(&mut self.source.get().unwrap())
-        {
-            if !params.old_password.is_empty()
-                && verify(&params.old_password, &user.password).unwrap()
-            {
-                let new_password = bcrypt::hash(&params.new_password, DEFAULT_COST).unwrap();
-                diesel::update(users::table)
-                    .filter(user_id.eq(&user.id))
-                    .set(password.eq(&new_password))
-                    .execute(&mut self.source.get().unwrap())
-                    .expect("Error updating user password");
-                return Ok(());
-            }
-            return Err(APIError::InvalidCredentials);
-        } else {
-            Err(APIError::InternalError)
-        }
+            .map(|user| {
+                if !params.old_password.is_empty()
+                    && verify(&params.old_password, &user.password).unwrap()
+                {
+                    let new_password = bcrypt::hash(&params.new_password, DEFAULT_COST).unwrap();
+                    diesel::update(users::table)
+                        .filter(user_id.eq(&user.id))
+                        .set(password.eq(&new_password))
+                        .execute(&mut self.source.get().unwrap())
+                        .expect("Error updating user password");
+                }
+            })
+            .map_err(|_| APIError::InternalError)
     }
 }

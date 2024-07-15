@@ -36,31 +36,26 @@ impl AuthService {
 
 impl IAuthService for AuthService {
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
-        match params.validate() {
-            Ok(_) => self.auth_repo.login(params),
-            Err(e) => Err(APIError::BadRequest {
+        params
+            .validate()
+            .map_err(|e| APIError::BadRequest {
                 message: e.to_string(),
-            }),
-        }
+            })
+            .and_then(|_| self.auth_repo.login(params))
     }
 
     fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()> {
-        if self.auth_repo.remove_user_session(user, login_session) {
-            Ok(())
-        } else {
-            Err(APIError::InvalidCredentials)
-        }
+        self.auth_repo
+            .remove_user_session(user, login_session)
+            .then_some(())
+            .ok_or(APIError::InvalidCredentials)
     }
 
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
-        if self
-            .auth_repo
+        self.auth_repo
             .is_valid_login_session(params.claims.jti, params.claims.login_session)
-        {
-            Ok(params.claims.jti)
-        } else {
-            Err(APIError::Unauthorized)
-        }
+            .then(|| params.claims.jti)
+            .ok_or(APIError::Unauthorized)
     }
 
     fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
@@ -72,18 +67,17 @@ impl IAuthService for AuthService {
     }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
-        match params.validate() {
-            Ok(_) => {
-                if params.old_password == params.new_password {
-                    return Err(APIError::BadRequest {
-                        message: "Old password and new password must be different".to_string(),
-                    });
-                }
-                self.auth_repo.update_password(user, params)
-            }
-            Err(e) => Err(APIError::BadRequest {
+        params
+            .validate()
+            .map_err(|e| APIError::BadRequest {
                 message: e.to_string(),
-            }),
-        }
+            })
+            .and_then(|_| {
+                (params.old_password != params.new_password)
+                    .then(|| self.auth_repo.update_password(user, params))
+                    .ok_or(APIError::BadRequest {
+                        message: "Old password and new password must be different".to_string(),
+                    })
+            })?
     }
 }

@@ -38,6 +38,6 @@ impl AuthToken {
             &payload,
             &EncodingKey::from_rsa_pem(decoded_private_key.as_bytes()).unwrap(),
         )
-        .map_err(|_e| APIError::InternalError)
+        .map_err(|_| APIError::InternalError)
     }
 }

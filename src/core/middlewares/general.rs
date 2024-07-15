@@ -24,17 +24,24 @@ impl FromRequest for GeneralMiddleware {
 
     // act as auth middleware
     fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
-        if let Some(header_auth_string) = request.headers().get(AUTHORIZATION) {
-            if let Ok(auth_str) = header_auth_string.to_str() {
-                if is_auth_header_valid(header_auth_string) {
-                    let token = token_extractor(&auth_str);
-                    if let Ok(token_data) = decode_token(&token.to_string()) {
-                        return Box::pin(async move { Ok(GeneralMiddleware { data: token_data }) });
-                    }
-                }
-            }
+        let header_auth = request
+            .headers()
+            .get(AUTHORIZATION)
+            .ok_or_else(|| APIError::Unauthorized);
+        // check if auth header is valid
+        if !is_auth_header_valid(header_auth.as_ref().unwrap()) {
+            return Box::pin(async move { Err(APIError::Unauthorized) });
         }
-        Box::pin(async move { Err(APIError::Unauthorized) })
+        let auth_str =
+            header_auth.and_then(|auth| auth.to_str().map_err(|_| APIError::Unauthorized));
+
+        let token = token_extractor(&auth_str.unwrap());
+        let token_data = decode_token(&token.to_string()).map_err(|_| APIError::Unauthorized);
+        return Box::pin(async move {
+            Ok(GeneralMiddleware {
+                data: token_data.unwrap(),
+            })
+        });
     }
 }
 
@@ -50,7 +57,7 @@ pub fn decode_token(jwt: &String) -> AppResult<TokenData<GeneralToken>> {
         &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
         &validation,
     )
-    .map_err(|_e| APIError::Unauthorized)
+    .map_err(|_| APIError::Unauthorized)
 }
 
 pub fn token_extractor(auth: &str) -> String {

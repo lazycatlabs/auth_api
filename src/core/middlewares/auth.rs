@@ -57,7 +57,7 @@ impl FromRequest for AuthMiddleware {
             })
         });
 
-        let token = token_extractor(auth_str.unwrap());
+        let token = token_extractor(&auth_str.unwrap());
         let token_data =
             decode_token(&token.to_string()).map_err(|_| APIError::UnauthorizedMessage {
                 message: "Invalid token".to_string(),

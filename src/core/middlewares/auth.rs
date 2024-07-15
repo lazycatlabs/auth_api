@@ -37,53 +37,47 @@ impl FromRequest for AuthMiddleware {
         let pool = init_db();
         let di = DiContainer::new(&pool);
 
-        // get authorization header is available
-        let header_auth =
-            request
-                .headers()
-                .get(AUTHORIZATION)
-                .ok_or_else(|| APIError::UnauthorizedMessage {
-                    message: "Missing authorization header".to_string(),
+        // clone the request headers to avoids lifetime issues
+        let auth_header = request
+            .headers()
+            .get(AUTHORIZATION)
+            .cloned()
+            .expect("Authorization headers must be provided");
+
+        Box::pin(async move {
+            if !is_auth_header_valid(&auth_header) {
+                return Err(APIError::UnauthorizedMessage {
+                    message: "Invalid authorization headers".to_string(),
                 });
+            }
 
-        // check if header auth is valid
-        if !is_auth_header_valid(header_auth.as_ref().unwrap()) {
-            return Box::pin(async move { Err(APIError::Unauthorized) });
-        }
+            let auth_str = auth_header
+                .to_str()
+                .map_err(|_| APIError::UnauthorizedMessage {
+                    message: "Invalid authorization headers".to_string(),
+                })?;
 
-        let auth_str = header_auth.and_then(|auth| {
-            auth.to_str().map_err(|_| APIError::UnauthorizedMessage {
-                message: "Invalid authorization headers".to_string(),
-            })
-        });
+            let token = token_extractor(auth_str);
+            let token_data =
+                decode_token(&token.to_string()).map_err(|_| APIError::Unauthorized)?;
 
-        let token = token_extractor(&auth_str.unwrap());
-        let token_data =
-            decode_token(&token.to_string()).map_err(|_| APIError::UnauthorizedMessage {
-                message: "Invalid token".to_string(),
-            });
+            let user_id = di.auth_service.verify_token(&token_data).map_err(|_| {
+                APIError::UnauthorizedMessage {
+                    message: "Token verification failed".to_string(),
+                }
+            })?;
 
-        // check token to get user id
-        let user_id = di
-            .auth_service
-            .verify_token(token_data.as_ref().unwrap())
-            .map_err(|_| APIError::UnauthorizedMessage {
-                message: "Token verification failed".to_string(),
-            });
+            let user = di.user_service.find_user_by_id(user_id).map_err(|_| {
+                APIError::UnauthorizedMessage {
+                    message: "User not found".to_string(),
+                }
+            })?;
 
-        let user = di
-            .user_service
-            .find_user_by_id(user_id.unwrap())
-            .map_err(|_| APIError::UnauthorizedMessage {
-                message: "User not found".to_string(),
-            });
-
-        return Box::pin(async move {
             Ok(AuthMiddleware {
-                user: user.unwrap(),
-                login_session: token_data.unwrap().claims.login_session,
+                user,
+                login_session: token_data.claims.login_session,
             })
-        });
+        })
     }
 }
 

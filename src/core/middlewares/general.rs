@@ -24,24 +24,30 @@ impl FromRequest for GeneralMiddleware {
 
     // act as auth middleware
     fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let header_auth = request
+        // clone the request headers to avoids lifetime issues
+        let auth_header = request
             .headers()
             .get(AUTHORIZATION)
-            .ok_or_else(|| APIError::Unauthorized);
-        // check if auth header is valid
-        if !is_auth_header_valid(header_auth.as_ref().unwrap()) {
-            return Box::pin(async move { Err(APIError::Unauthorized) });
-        }
-        let auth_str =
-            header_auth.and_then(|auth| auth.to_str().map_err(|_| APIError::Unauthorized));
+            .cloned()
+            .expect("Authorization headers must be provided");
 
-        let token = token_extractor(&auth_str.unwrap());
-        let token_data = decode_token(&token.to_string()).map_err(|_| APIError::Unauthorized);
-        return Box::pin(async move {
-            Ok(GeneralMiddleware {
-                data: token_data.unwrap(),
-            })
-        });
+        Box::pin(async move {
+            if !is_auth_header_valid(&auth_header) {
+                return Err(APIError::UnauthorizedMessage {
+                    message: "Invalid authorization headers".to_string(),
+                });
+            }
+
+            let auth_str = auth_header
+                .to_str()
+                .map_err(|_| APIError::UnauthorizedMessage {
+                    message: "Invalid authorization headers".to_string(),
+                })?;
+
+            let token = token_extractor(auth_str);
+            let token_data = decode_token(&token).map_err(|_| APIError::Unauthorized)?;
+            Ok(GeneralMiddleware { data: token_data })
+        })
     }
 }
 

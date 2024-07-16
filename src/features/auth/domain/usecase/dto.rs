@@ -1,10 +1,9 @@
 use chrono::NaiveDateTime;
 use diesel::Insertable;
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use validator::Validate;
 
-use crate::schema::login_history;
+use crate::{camel_case_struct, schema::login_history};
 
 #[derive(Insertable)]
 #[diesel(table_name = login_history)]
@@ -17,31 +16,27 @@ pub struct LoginHistoryParams {
     pub fcm_token: String,
 }
 
-#[derive(Serialize, Deserialize, Validate, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct LoginParams {
-    #[validate(email(message = "Invalid email"))]
-    pub email: String,
-    #[validate(length(min = 3, max = 20))]
-    pub password: String,
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub ip_addr: Option<String>,
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub device_info: String,
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub os_info: String,
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub fcm_token: String,
-}
+camel_case_struct!(LoginParams {
+  #[validate(email(message = "Invalid email"))]
+   email: String,
+  #[validate(length(min = 3, max = 20))]
+   password: String,
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   ip_addr: Option<String>,
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   device_info: String,
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   os_info: String,
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   fcm_token: String
+});
 
-#[derive(Serialize, Deserialize, Validate, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct GeneralTokenParams {
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub client_id: Option<String>,
-    #[validate(length(min = 0, message = "Can't be empty"))]
-    pub client_secret: Option<String>,
-}
+camel_case_struct!(GeneralTokenParams {
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   client_id: Option<String>,
+  #[validate(length(min = 0, message = "Can't be empty"))]
+   client_secret: Option<String>
+});
 
 impl GeneralTokenParams {
     pub fn verify(&self) -> bool {
@@ -51,19 +46,17 @@ impl GeneralTokenParams {
     }
 }
 
-#[derive(Serialize, Deserialize, Validate, Debug)]
-#[serde(rename_all = "camelCase")]
-pub struct UpdatePasswordParams {
+camel_case_struct!(UpdatePasswordParams {
     #[validate(length(min = 1, message = "Can't be empty"))]
-    pub old_password: String,
+    old_password: String,
     #[validate(
         length(min = 6, message = "Must be at least 6 characters"),
         must_match(other = "confirm_password", message = "Password not match")
     )]
-    pub new_password: String,
+    new_password: String,
     #[validate(
         length(min = 6, message = "Must be at least 6 characters"),
         must_match(other = "new_password", message = "Password not match")
     )]
-    pub confirm_password: String,
-}
+    confirm_password: String
+});

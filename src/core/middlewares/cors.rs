@@ -8,7 +8,8 @@ pub fn cors() -> Cors {
         .allowed_headers(vec![
             header::AUTHORIZATION,
             header::ACCEPT,
-            header::CONTENT_TYPE])
+            header::CONTENT_TYPE,
+        ])
         .allowed_header(header::CONTENT_TYPE)
         .max_age(3600)
 }

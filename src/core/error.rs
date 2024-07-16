@@ -20,6 +20,8 @@ pub enum APIError {
     #[display(fmt = "An internal error occurred. Please try again later.")]
     InternalError,
     #[display(fmt = "{}", message)]
+    UnauthorizedMessage { message: String },
+    #[display(fmt = "{}", message)]
     BadRequest { message: String },
 }
 
@@ -27,6 +29,7 @@ impl error::ResponseError for APIError {
     fn status_code(&self) -> StatusCode {
         match *self {
             APIError::BadRequest { .. } => StatusCode::BAD_REQUEST,
+            APIError::UnauthorizedMessage { .. } => StatusCode::UNAUTHORIZED,
             APIError::InvalidCredentials => StatusCode::UNAUTHORIZED,
             APIError::Unauthorized => StatusCode::UNAUTHORIZED,
             APIError::InvalidAppCredentials => StatusCode::UNAUTHORIZED,

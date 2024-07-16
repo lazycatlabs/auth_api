@@ -1,32 +1,23 @@
-use actix_web::{HttpRequest, HttpResponse, web, web::Json};
+use actix_web::{web, web::Json, HttpRequest, HttpResponse};
 
 use crate::{
     core::{
-        middlewares::{
-            auth::AuthMiddleware,
-            state::AppState,
-        },
+        middlewares::{auth::AuthMiddleware, state::AppState},
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::{
-        domain::{
-            usecase::{
-                dto::*,
-                interface::IAuthService,
-            },
-        },
-    },
+    features::auth::domain::usecase::{dto::*, interface::IAuthService},
 };
 
 pub async fn general_token(
     state: web::Data<AppState>,
     params: Json<GeneralTokenParams>,
 ) -> AppResult<HttpResponse> {
-    match state.di_container.auth_service.general_token(params.0) {
-        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
-        Err(e) => Err(e),
-    }
+    state
+        .di_container
+        .auth_service
+        .general_token(params.0)
+        .map(|data| ResponseBody::success(Some(data)).into())
 }
 
 pub async fn login(
@@ -40,31 +31,30 @@ pub async fn login(
         ip_addr: Some(ip_addr),
         ..params.into_inner()
     };
-
-    match state.di_container.auth_service.login(new_params) {
-        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
-        Err(e) => Err(e),
-    }
+    state
+        .di_container
+        .auth_service
+        .login(new_params)
+        .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn logout(
-    state: web::Data<AppState>,
-    auth: AuthMiddleware,
-) -> AppResult<HttpResponse> {
-    match state.di_container.auth_service.logout(auth.user.id, auth.login_session) {
-        Ok(_) => Ok(ResponseBody::<()>::success(None).into()),
-        Err(e) => Err(e),
-    }
+pub async fn logout(state: web::Data<AppState>, auth: AuthMiddleware) -> AppResult<HttpResponse> {
+    state
+        .di_container
+        .auth_service
+        .logout(auth.user.id, auth.login_session)
+        .map(|_| ResponseBody::<()>::success(None).into())
 }
 
 pub async fn login_session(
     state: web::Data<AppState>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    match state.di_container.auth_service.login_session(auth.user.id) {
-        Ok(data) => Ok(ResponseBody::success(Some(data)).into()),
-        Err(e) => Err(e),
-    }
+    state
+        .di_container
+        .auth_service
+        .login_session(auth.user.id)
+        .map(|data| ResponseBody::success(Some(data)).into())
 }
 
 pub async fn update_password(
@@ -72,8 +62,9 @@ pub async fn update_password(
     params: Json<UpdatePasswordParams>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    match state.di_container.auth_service.update_password(auth.user.id, params.0) {
-        Ok(_) => Ok(ResponseBody::<()>::success(None).into()),
-        Err(e) => Err(e),
-    }
+    state
+        .di_container
+        .auth_service
+        .update_password(auth.user.id, params.0)
+        .map(|_| ResponseBody::<()>::success(None).into())
 }

@@ -1,14 +1,11 @@
-use bcrypt::{DEFAULT_COST, hash};
+use bcrypt::{hash, DEFAULT_COST};
 use chrono::NaiveDateTime;
 use diesel::{Insertable, Queryable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 use crate::{
-    core::{
-        error::APIError,
-        types::AppResult,
-    },
+    core::{error::APIError, types::AppResult},
     schema::users,
 };
 

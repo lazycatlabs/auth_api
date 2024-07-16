@@ -4,14 +4,8 @@ use uuid::Uuid;
 use crate::{
     core::types::AppResult,
     features::auth::{
-        data::models::{
-            auth_token::AuthToken,
-            login_history::LoginHistory,
-        },
-        domain::{
-            entity::auth::AuthEntity,
-            usecase::dto::*,
-        },
+        data::models::{auth_token::AuthToken, login_history::LoginHistory},
+        domain::{entity::auth::AuthEntity, usecase::dto::*},
     },
 };
 

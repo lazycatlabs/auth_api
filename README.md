@@ -73,7 +73,7 @@ cargo build
 - [x] Update password
 - [ ] Email verification
 - [ ] Create Tests
-- [ ] Create docker-compose to build the project
+- [x] Create docker-compose to build the project
 
 ---
 <h3 align="center">❤️ Buy me coffee if you love my works ☕️</h3>

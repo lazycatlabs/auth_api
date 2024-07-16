@@ -4,10 +4,7 @@ use crate::{
     core::types::AppResult,
     features::auth::{
         data::models::login_history::LoginHistory,
-        domain::{
-            entity::auth::AuthEntity,
-            usecase::dto::*,
-        },
+        domain::{entity::auth::AuthEntity, usecase::dto::*},
     },
 };
 
@@ -20,4 +17,3 @@ pub trait IAuthRepository: Send + Sync {
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool;
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()>;
 }
-

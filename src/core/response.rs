@@ -1,13 +1,14 @@
+use crate::{
+    camel_case_struct,
+    core::constants::{MESSAGE_SUCCESS, STATUS_SUCCESS},
+};
 use actix_web::HttpResponse;
 use serde::{Deserialize, Serialize};
-use crate::core::constants::{MESSAGE_SUCCESS, STATUS_SUCCESS};
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Diagnostic {
-    pub status: String,
-    pub message: String,
-}
+camel_case_struct!(Diagnostic {
+    status: String,
+    message: String
+});
 
 impl Diagnostic {
     pub fn new(status: &str, message: &str) -> Diagnostic {
@@ -27,8 +28,8 @@ pub struct ResponseBody<T> {
 }
 
 impl<T> Into<HttpResponse> for ResponseBody<T>
-    where
-        T: Serialize,
+where
+    T: Serialize,
 {
     fn into(self) -> HttpResponse {
         HttpResponse::Ok().json(self)
@@ -41,10 +42,7 @@ impl<T> ResponseBody<T> {
             Some(data) => Some(data),
             None => None,
         };
-        ResponseBody {
-            diagnostic,
-            data,
-        }
+        ResponseBody { diagnostic, data }
     }
 
     pub fn success(data: Option<T>) -> ResponseBody<T> {

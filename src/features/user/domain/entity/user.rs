@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
-pub struct UserEntity {
-    pub id: Uuid,
-    pub name: String,
-    pub email: String,
-    pub photo: String,
-    pub verified: bool,
-}
+use crate::camel_case_struct;
+
+camel_case_struct!(UserEntity {
+    id: Uuid,
+    name: String,
+    email: String,
+    photo: String,
+    verified: bool
+});

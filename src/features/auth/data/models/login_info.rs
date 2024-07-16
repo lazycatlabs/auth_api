@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
-pub struct LoginInfo {
-    pub id: String,
-    pub email: String,
-    pub login_session: Uuid,
-}
+use crate::camel_case_struct;
+
+camel_case_struct!(LoginInfo {
+    id: String,
+    email: String,
+    login_session: Uuid
+});

@@ -2,23 +2,21 @@ use chrono::Utc;
 use diesel::AsChangeset;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
-use validator::Validate;
 
-use crate::{
-    features::user::data::models::user::User,
-    schema::users,
-};
+use crate::{camel_case_struct, features::user::data::models::user::User, schema::users};
 
-#[derive(Debug, Serialize, Deserialize, Validate)]
-#[serde(rename_all = "camelCase")]
-pub struct RegisterParams {
+camel_case_struct!(RegisterParams {
     #[validate(email(message = "Invalid email"))]
-    pub email: String,
+    email: String,
     #[validate(length(min = 0, message = "Can't be empty"))]
-    pub name: String,
-    #[validate(length(min = 3, max = 20, message = "Password must be between 3 and 20 characters"))]
-    pub password: String,
-}
+    name: String,
+    #[validate(length(
+        min = 3,
+        max = 20,
+        message = "Password must be between 3 and 20 characters"
+    ))]
+    password: String
+});
 
 impl From<RegisterParams> for User {
     fn from(params: RegisterParams) -> Self {
@@ -35,7 +33,6 @@ impl From<RegisterParams> for User {
         }
     }
 }
-
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
 #[diesel(table_name = users)]

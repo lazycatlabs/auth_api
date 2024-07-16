@@ -1,17 +1,9 @@
 use std::env;
 
-use actix_web::{
-    App,
-    HttpServer,
-    middleware::Logger,
-    web::Data,
-};
+use actix_web::{middleware::Logger, web::Data, App, HttpServer};
 
 use crate::core::{
-    config::{
-        db::init_db,
-        routes::config_services,
-    },
+    config::{db::init_db, routes::config_services},
     middlewares::cors::cors,
 };
 
@@ -34,7 +26,7 @@ pub async fn run() -> std::io::Result<()> {
             .app_data(Data::new(state.clone()))
             .configure(config_services)
     })
-        .bind(&app_url)?
-        .run()
-        .await
+    .bind(&app_url)?
+    .run()
+    .await
 }

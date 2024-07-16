@@ -9,9 +9,6 @@ mod features;
 mod schema;
 mod utils;
 
-#[macro_use]
-extern crate serde;
-
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     if env::var_os("RUST_LOG").is_none() {

@@ -28,32 +28,23 @@ impl UserService {
 
 impl IUserService for UserService {
     fn register(&self, params: RegisterParams) -> AppResult<String> {
-        match params.validate() {
-            Ok(_) => self.user_repo.create(params),
-            Err(e) => Err(APIError::BadRequest {
+        params
+            .validate()
+            .map(|_| self.user_repo.create(params))
+            .map_err(|e| APIError::BadRequest {
                 message: e.to_string(),
-            }),
-        }
+            })?
     }
 
     fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
-        match self.user_repo.find_user_by_id(user_id) {
-            Ok(data) => Ok(data),
-            Err(e) => Err(e),
-        }
+        self.user_repo.find_user_by_id(user_id)
     }
 
     fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity> {
-        match self.user_repo.update_user(user_id, params) {
-            Ok(data) => Ok(data),
-            Err(e) => Err(e),
-        }
+        self.user_repo.update_user(user_id, params)
     }
 
     fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
-        match self.user_repo.delete(user_id) {
-            Ok(data) => Ok(data),
-            Err(e) => Err(e),
-        }
+        self.user_repo.delete(user_id)
     }
 }

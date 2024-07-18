@@ -21,6 +21,11 @@ cargo-watch = "8.5.2"
 diesel_migrations = "2.2.0"
 bcrypt = "0.15.1"
 
+
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1.38", features = ["full"] }
+
+
 [dependencies.diesel]
 version = "2.2.1"
 features = ["postgres", "r2d2", "uuid", "chrono"]
@@ -40,3 +45,4 @@ features = ["serde", "v4"]
 [dependencies.validator]
 version = "0.18.1"
 features = ["derive"]
+

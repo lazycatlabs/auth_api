@@ -1,7 +1,7 @@
 use actix_web::web;
 
 use crate::{
-    features::{auth::auth_controller, user::user_controller},
+    features::{auth::auth_controller, general::general_controller, user::user_controller},
     utils::{handler::route_not_found, health_checker},
 };
 
@@ -13,6 +13,9 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                 web::resource("/health_checker")
                     .route(web::get().to(health_checker::health_checker)),
             )
+            .service(web::scope("/general").service(
+                web::resource("/send_email").route(web::post().to(general_controller::test_email)),
+            ))
             .service(
                 web::scope("/auth")
                     .service(

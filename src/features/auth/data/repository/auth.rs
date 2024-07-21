@@ -45,10 +45,10 @@ impl IAuthRepository for AuthRepository {
         let login_history_params = LoginHistoryParams {
             user_id: user,
             ip_addr: login_params.ip_addr.unwrap(),
-            os_info: login_params.os_info,
-            device_info: login_params.device_info,
+            os_info: login_params.os_info.unwrap(),
+            device_info: login_params.device_info.unwrap(),
             login_timestamp: now,
-            fcm_token: login_params.fcm_token,
+            fcm_token: login_params.fcm_token.unwrap(),
         };
 
         diesel::insert_into(login_history::table)

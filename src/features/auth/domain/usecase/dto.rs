@@ -17,24 +17,47 @@ pub struct LoginHistoryParams {
 }
 
 camel_case_struct!(LoginParams {
-  #[validate(email(message = "Invalid email"))]
-   email: String,
-  #[validate(length(min = 3, max = 20))]
-   password: String,
-  #[validate(length(min = 0, message = "Can't be empty"))]
+  #[validate(
+    required(message = "field is required"),
+    email(message = "Invalid email"),
+  )]
+   email: Option<String>,
+  #[validate(
+    required(message = "field is required"),
+    length(min = 3, max = 20),
+  )]
+   password: Option<String>,
+  #[validate(
+    length(min = 1, message = "Can't be empty"),
+  )]
    ip_addr: Option<String>,
-  #[validate(length(min = 0, message = "Can't be empty"))]
-   device_info: String,
-  #[validate(length(min = 0, message = "Can't be empty"))]
-   os_info: String,
-  #[validate(length(min = 0, message = "Can't be empty"))]
-   fcm_token: String
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+   device_info: Option<String>,
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+   os_info: Option<String>,
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+   fcm_token: Option<String>
 });
 
 camel_case_struct!(GeneralTokenParams {
-  #[validate(length(min = 0, message = "Can't be empty"))]
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
    client_id: Option<String>,
-  #[validate(length(min = 0, message = "Can't be empty"))]
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
    client_secret: Option<String>
 });
 
@@ -47,16 +70,21 @@ impl GeneralTokenParams {
 }
 
 camel_case_struct!(UpdatePasswordParams {
-    #[validate(length(min = 1, message = "Can't be empty"))]
-    old_password: String,
     #[validate(
-        length(min = 6, message = "Must be at least 6 characters"),
-        must_match(other = "confirm_password", message = "Password not match")
+      required(message = "field is required"),
+      length(min = 1, message = "Can't be empty"),
     )]
-    new_password: String,
+    old_password: Option<String>,
     #[validate(
-        length(min = 6, message = "Must be at least 6 characters"),
-        must_match(other = "new_password", message = "Password not match")
+      required(message = "field is required"),
+      length(min = 6, message = "Must be at least 6 characters"),
+      must_match(other = "confirm_password", message = "Password not match")
     )]
-    confirm_password: String
+    new_password: Option<String>,
+    #[validate(
+      required(message = "field is required"),
+      length(min = 6, message = "Must be at least 6 characters"),
+      must_match(other = "new_password", message = "Password not match")
+    )]
+    confirm_password: Option<String>
 });

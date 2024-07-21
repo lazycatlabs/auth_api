@@ -1,6 +1,7 @@
 use actix_web::web::Json;
 use actix_web::{web, HttpResponse};
 
+use crate::core::error::APIError;
 use crate::core::middlewares::general::GeneralMiddleware;
 use crate::{
     core::{
@@ -25,7 +26,6 @@ pub async fn register(
         .user_service
         .register(params.0)
         .map(|_| ResponseBody::<()>::success(None).into())
-        .map_err(ResponseBody::)
 }
 
 pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {

@@ -11,7 +11,7 @@ pub async fn send_email(params: SendEmailParams) -> AppResult<HttpResponse> {
 
     let mut message = json!({
       "From":{
-        "Email": "hey.mudassir@gmail.com",
+        "Email": "lzyct@lazycatlabs.com",
         "Name": "LazyCatLabs"
       },
       "To": [

@@ -1,6 +1,8 @@
 use actix_web::web::Json;
 use actix_web::{web, HttpResponse};
 
+use crate::core::error::APIError;
+use crate::core::middlewares::general::GeneralMiddleware;
 use crate::{
     core::{
         constants::STATUS_SUCCESS,
@@ -15,6 +17,7 @@ use crate::{
 };
 
 pub async fn register(
+    _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {

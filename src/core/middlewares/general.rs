@@ -28,21 +28,25 @@ impl FromRequest for GeneralMiddleware {
         let auth_header = request
             .headers()
             .get(AUTHORIZATION)
-            .cloned()
-            .expect("Authorization headers must be provided");
+            .cloned();
 
         Box::pin(async move {
+            let auth_header = auth_header.ok_or_else(|| APIError::UnauthorizedMessage {
+                message: "Authorization header not found".to_string(),
+            })?;
+
             if !is_auth_header_valid(&auth_header) {
                 return Err(APIError::UnauthorizedMessage {
                     message: "Invalid authorization headers".to_string(),
                 });
             }
 
-            let auth_str = auth_header
-                .to_str()
-                .map_err(|_| APIError::UnauthorizedMessage {
-                    message: "Invalid authorization headers".to_string(),
-                })?;
+            let auth_str =
+                auth_header
+                    .to_str()
+                    .map_err(|_| APIError::UnauthorizedMessage {
+                        message: "Invalid authorization headers".to_string(),
+                    })?;
 
             let token = token_extractor(auth_str);
             let token_data = decode_token(&token).map_err(|_| APIError::Unauthorized)?;

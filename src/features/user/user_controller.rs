@@ -1,6 +1,7 @@
 use actix_web::web::Json;
 use actix_web::{web, HttpResponse};
 
+use crate::core::middlewares::general::GeneralMiddleware;
 use crate::{
     core::{
         constants::STATUS_SUCCESS,
@@ -15,6 +16,7 @@ use crate::{
 };
 
 pub async fn register(
+    _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {
@@ -23,6 +25,7 @@ pub async fn register(
         .user_service
         .register(params.0)
         .map(|_| ResponseBody::<()>::success(None).into())
+        .map_err(ResponseBody::)
 }
 
 pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {

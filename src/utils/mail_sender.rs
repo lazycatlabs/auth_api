@@ -6,13 +6,6 @@ use serde_json::json;
 use crate::core::{error::APIError, response::ResponseBody, types::AppResult};
 use crate::features::general::domain::usecase::dto::SendEmailParams;
 
-async fn send_email(
-    email: &str,
-    name: &str,
-    subject: &str,
-    text_content: Option<&str>,
-    html_content: Option<&str>,
-) -> AppResult<HttpResponse> {
 pub async fn send_email(params: SendEmailParams) -> AppResult<HttpResponse> {
     let client = Client::new();
 

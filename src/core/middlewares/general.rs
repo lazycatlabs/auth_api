@@ -51,7 +51,7 @@ impl FromRequest for GeneralMiddleware {
     }
 }
 
-pub fn decode_token(jwt: &String) -> AppResult<TokenData<GeneralToken>> {
+pub fn decode_token(jwt: &str) -> AppResult<TokenData<GeneralToken>> {
     let bytes_public_key = general_purpose::STANDARD
         .decode(dotenv!("GENERAL_TOKEN_PUBLIC_KEY"))
         .unwrap();

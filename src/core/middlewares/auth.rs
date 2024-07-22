@@ -73,7 +73,7 @@ impl FromRequest for AuthMiddleware {
                 }
             })?;
 
-            Ok(AuthMiddleware {
+           Ok(AuthMiddleware {
                 user,
                 login_session: token_data.claims.login_session,
             })
@@ -81,7 +81,7 @@ impl FromRequest for AuthMiddleware {
     }
 }
 
-pub fn decode_token(jwt: &String) -> AppResult<TokenData<AuthToken>> {
+pub fn decode_token(jwt: &str) -> AppResult<TokenData<AuthToken>> {
     let bytes_public_key = general_purpose::STANDARD
         .decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY"))
         .unwrap();

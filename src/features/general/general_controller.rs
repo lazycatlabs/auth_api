@@ -14,8 +14,8 @@ use crate::{
 };
 
 pub async fn test_email(
-    _: GeneralMiddleware,
-    __: web::Data<AppState>,
+    _middleware: GeneralMiddleware,
+    _state: web::Data<AppState>,
     params: Json<SendEmailParams>,
 ) -> AppResult<HttpResponse> {
     params.validate().map_err(|e| APIError::BadRequest {

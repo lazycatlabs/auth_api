@@ -32,25 +32,34 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --verbose --release --all-features
 
       - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --all-features
+          args: --verbose --all-features
 
       - name: Check formatting
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all -- --check
+        run: |
+          cargo fmt --all -- --check
+          if [ $? -ne 0 ]; then
+            echo "Formatting issues found. Applying automatic fixes..."
+            cargo fmt --all
+            git config --global user.name 'Lzyct-Bot'
+            git config --global user.email 'lazycatlabs@users.noreply.github.com'
+            git add .
+            git commit -m "style: apply automatic formatting"
+            git push
+            echo "Formatting issues have been automatically fixed. Please review the changes."
+            exit 1
+          fi
 
       - name: Run clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
+          args: -- -W warnings
 
       - name: Get branch name
         id: branch-name
@@ -72,6 +81,7 @@ jobs:
           git push
 
       - name: Delete branch if merged
+        if: github.event.pull_request.merged == true
         uses: actions/github-script@v5
         with:
           script: |

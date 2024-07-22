@@ -1,12 +1,11 @@
-use actix_web::HttpResponse;
 use dotenv_codegen::dotenv;
 use reqwest::Client;
 use serde_json::json;
 
-use crate::core::{error::APIError, response::ResponseBody, types::AppResult};
+use crate::core::{error::APIError, types::AppResult};
 use crate::features::general::domain::usecase::dto::SendEmailParams;
 
-pub async fn send_email(params: SendEmailParams) -> AppResult<HttpResponse> {
+pub async fn send_email(params: SendEmailParams) -> AppResult<String> {
     let client = Client::new();
 
     let mut message = json!({
@@ -46,14 +45,15 @@ pub async fn send_email(params: SendEmailParams) -> AppResult<HttpResponse> {
         .await
         .map_err(|_| APIError::InternalError)?;
 
-    println!("Email sent to {}", &params.email);
-    println!("Body: {:?}", body);
-    println!("Response: {:?}", result);
+    let email = &params.email.unwrap_or("Unknown".to_string());
+    println!("Email sent to {}", &email);
+    println!("Body: {:#?}", body);
+    println!("Response: {:#?}", result);
     if result.status().is_client_error() {
         return Err(APIError::BadRequest {
-            message: format!("Failed to send email to {}", &params.email).to_string(),
+            message: format!("Failed to send email to {}", &email).to_string(),
         });
     }
 
-    Ok(ResponseBody::<()>::success(None).into())
+    Ok("Email sent successfully".to_string())
 }

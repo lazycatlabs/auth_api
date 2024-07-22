@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use bcrypt::{verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
@@ -45,10 +47,10 @@ impl IAuthRepository for AuthRepository {
         let login_history_params = LoginHistoryParams {
             user_id: user,
             ip_addr: login_params.ip_addr.unwrap(),
-            os_info: login_params.os_info,
-            device_info: login_params.device_info,
+            os_info: login_params.os_info.unwrap(),
+            device_info: login_params.device_info.unwrap(),
             login_timestamp: now,
-            fcm_token: login_params.fcm_token,
+            fcm_token: login_params.fcm_token.unwrap(),
         };
 
         diesel::insert_into(login_history::table)
@@ -80,11 +82,15 @@ impl IAuthRepository for AuthRepository {
     }
 
     fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+        let param = params.clone();
+        let email_param = param.email.as_deref().unwrap_or("");
+        let password_param = param.password.as_deref().unwrap_or("");
+
         users::table
-            .filter(email.eq(&params.email))
+            .filter(email.eq(&email_param))
             .get_result::<User>(&mut self.source.get().unwrap())
             .map(|user| {
-                (!user.password.is_empty() && verify(&params.password, &user.password).unwrap())
+                (!user.password.is_empty() && verify(&password_param, &user.password).unwrap())
                     .then(|| {
                         self.add_user_session(user.id, params)
                             .map(|login_session| {
@@ -122,10 +128,13 @@ impl IAuthRepository for AuthRepository {
             .filter(user_id.eq(user))
             .get_result::<User>(&mut self.source.get().unwrap())
             .map(|user| {
-                if !params.old_password.is_empty()
-                    && verify(&params.old_password, &user.password).unwrap()
+                let old_password_param = &params.old_password.unwrap_or("".to_string());
+                let new_password_param = &params.new_password.unwrap_or("".to_string());
+
+                if !&old_password_param.is_empty()
+                    && verify(&old_password_param, &user.password).unwrap()
                 {
-                    let new_password = bcrypt::hash(&params.new_password, DEFAULT_COST).unwrap();
+                    let new_password = bcrypt::hash(&new_password_param, DEFAULT_COST).unwrap();
                     diesel::update(users::table)
                         .filter(user_id.eq(&user.id))
                         .set(password.eq(&new_password))

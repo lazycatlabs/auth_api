@@ -25,10 +25,7 @@ impl FromRequest for GeneralMiddleware {
     // act as auth middleware
     fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
         // clone the request headers to avoids lifetime issues
-        let auth_header = request
-            .headers()
-            .get(AUTHORIZATION)
-            .cloned();
+        let auth_header = request.headers().get(AUTHORIZATION).cloned();
 
         Box::pin(async move {
             let auth_header = auth_header.ok_or_else(|| APIError::UnauthorizedMessage {
@@ -41,12 +38,11 @@ impl FromRequest for GeneralMiddleware {
                 });
             }
 
-            let auth_str =
-                auth_header
-                    .to_str()
-                    .map_err(|_| APIError::UnauthorizedMessage {
-                        message: "Invalid authorization headers".to_string(),
-                    })?;
+            let auth_str = auth_header
+                .to_str()
+                .map_err(|_| APIError::UnauthorizedMessage {
+                    message: "Invalid authorization headers".to_string(),
+                })?;
 
             let token = token_extractor(auth_str);
             let token_data = decode_token(&token).map_err(|_| APIError::Unauthorized)?;

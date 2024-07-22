@@ -27,29 +27,23 @@ pub struct ResponseBody<T> {
     pub data: Option<T>,
 }
 
-impl<T> Into<HttpResponse> for ResponseBody<T>
+impl<T> From<ResponseBody<T>> for HttpResponse
 where
     T: Serialize,
 {
-    fn into(self) -> HttpResponse {
-        HttpResponse::Ok().json(self)
+    fn from(val: ResponseBody<T>) -> Self {
+        HttpResponse::Ok().json(val)
     }
 }
 
 impl<T> ResponseBody<T> {
     pub fn new(diagnostic: Diagnostic, data: Option<T>) -> ResponseBody<T> {
-        let data = match data {
-            Some(data) => Some(data),
-            None => None,
-        };
+        let data = data;
         ResponseBody { diagnostic, data }
     }
 
     pub fn success(data: Option<T>) -> ResponseBody<T> {
-        let data = match data {
-            Some(data) => Some(data),
-            None => None,
-        };
+        let data = data;
         ResponseBody {
             diagnostic: Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
             data,

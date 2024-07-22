@@ -31,7 +31,7 @@ impl AuthToken {
             aud: dotenv!("CLIENT_ID").to_string(),
             iat: now.timestamp(),
             exp: exp.timestamp(),
-            login_session: login.login_session.clone(),
+            login_session: login.login_session,
         };
         jsonwebtoken::encode(
             &Header::new(Algorithm::RS256),

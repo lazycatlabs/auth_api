@@ -14,7 +14,7 @@ pub fn init_db() -> DBConn {
     // Run the migration
     run_migration(&mut pool.get().unwrap());
 
-    return pool;
+    pool
 }
 
 pub fn init_db_pool(url: &str) -> DBConn {

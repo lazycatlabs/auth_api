@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 
 use bcrypt::{verify, DEFAULT_COST};
 use chrono::Utc;
@@ -90,7 +89,7 @@ impl IAuthRepository for AuthRepository {
             .filter(email.eq(&email_param))
             .get_result::<User>(&mut self.source.get().unwrap())
             .map(|user| {
-                (!user.password.is_empty() && verify(&password_param, &user.password).unwrap())
+                (!user.password.is_empty() && verify(password_param, &user.password).unwrap())
                     .then(|| {
                         self.add_user_session(user.id, params)
                             .map(|login_session| {
@@ -132,9 +131,9 @@ impl IAuthRepository for AuthRepository {
                 let new_password_param = &params.new_password.unwrap_or("".to_string());
 
                 if !&old_password_param.is_empty()
-                    && verify(&old_password_param, &user.password).unwrap()
+                    && verify(old_password_param, &user.password).unwrap()
                 {
-                    let new_password = bcrypt::hash(&new_password_param, DEFAULT_COST).unwrap();
+                    let new_password = bcrypt::hash(new_password_param, DEFAULT_COST).unwrap();
                     diesel::update(users::table)
                         .filter(user_id.eq(&user.id))
                         .set(password.eq(&new_password))

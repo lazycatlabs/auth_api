@@ -54,7 +54,7 @@ impl IAuthService for AuthService {
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
         self.auth_repo
             .is_valid_login_session(params.claims.jti, params.claims.login_session)
-            .then(|| params.claims.jti)
+            .then_some(params.claims.jti)
             .ok_or(APIError::Unauthorized)
     }
 

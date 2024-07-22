@@ -4,14 +4,18 @@ use actix_web::{
 };
 use validator::Validate;
 
-use crate::{core::error::APIError, features::general::domain::usecase::dto::SendEmailParams};
+use crate::{
+    core::{error::APIError, middlewares::general::GeneralMiddleware},
+    features::general::domain::usecase::dto::SendEmailParams,
+};
 use crate::{
     core::{middlewares::state::AppState, response::ResponseBody, types::AppResult},
     utils::mail_sender::send_email,
 };
 
 pub async fn test_email(
-    _: web::Data<AppState>,
+    _: GeneralMiddleware,
+    __: web::Data<AppState>,
     params: Json<SendEmailParams>,
 ) -> AppResult<HttpResponse> {
     params.validate().map_err(|e| APIError::BadRequest {

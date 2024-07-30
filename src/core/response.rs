@@ -49,6 +49,13 @@ impl<T> ResponseBody<T> {
             data,
         }
     }
+    pub fn success_with_message(data: Option<T>, message: &str) -> ResponseBody<T> {
+        let data = data;
+        ResponseBody {
+            diagnostic: Diagnostic::new(STATUS_SUCCESS, message),
+            data,
+        }
+    }
 }
 
 #[derive(Serialize)]

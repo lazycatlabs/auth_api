@@ -71,6 +71,7 @@ cargo build
 - [ ] Refresh token
 - [ ] Forgot password
 - [x] Update password
+- [x] Send Email via [MailJet](https://app.mailjet.com)
 - [ ] Email verification
 - [ ] Create Tests
 - [x] Create docker-compose to build the project

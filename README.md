@@ -75,6 +75,7 @@ cargo build
 - [ ] Email verification
 - [ ] Create Tests
 - [x] Create docker-compose to build the project
+- [x] List of user with pagination 
 
 ---
 <h3 align="center">❤️ Buy me coffee if you love my works ☕️</h3>

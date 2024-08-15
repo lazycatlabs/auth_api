@@ -49,11 +49,6 @@ impl IUserService for UserService {
     }
 
     fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
-        params
-            .validate()
-            .map(|_| self.user_repo.users(params))
-            .map_err(|e| APIError::BadRequest {
-                message: e.to_string(),
-            })?
+      self.user_repo.users(params)
     }
 }

@@ -48,8 +48,6 @@ pub struct UpdateUserParams {
 }
 
 camel_case_struct!(PaginationParams {
-    #[validate(required(message = "field is required"))]
      page: Option<i64>,
-     #[validate(required(message = "field is required"))]
      per_page: Option<i64>,
 });

@@ -10,12 +10,16 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
             .service(
-                web::resource("/health_checker")
-                    .route(web::get().to(health_checker::health_checker)),
+                web::scope("/general")
+                    .service(
+                        web::resource("/send_email")
+                            .route(web::post().to(general_controller::test_email)),
+                    )
+                    .service(
+                        web::resource("/health_checker")
+                            .route(web::get().to(health_checker::health_checker)),
+                    ),
             )
-            .service(web::scope("/general").service(
-                web::resource("/send_email").route(web::post().to(general_controller::test_email)),
-            ))
             .service(
                 web::scope("/auth")
                     .service(
@@ -36,11 +40,15 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                     ),
             )
             .service(
-                web::resource("/user")
-                    .route(web::post().to(user_controller::register))
-                    .route(web::get().to(user_controller::get_user))
-                    .route(web::put().to(user_controller::update_user))
-                    .route(web::delete().to(user_controller::delete_user)),
+                web::scope("/user")
+                    .service(
+                        web::resource("")
+                            .route(web::post().to(user_controller::register))
+                            .route(web::get().to(user_controller::get_user))
+                            .route(web::put().to(user_controller::update_user))
+                            .route(web::delete().to(user_controller::delete_user)),
+                    )
+                    .service(web::resource("/all").route(web::get().to(user_controller::users))),
             ),
     )
     .default_service(web::route().to(route_not_found));

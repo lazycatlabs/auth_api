@@ -46,3 +46,10 @@ pub struct UpdateUserParams {
     pub photo: Option<String>,
     pub verified: Option<bool>,
 }
+
+camel_case_struct!(PaginationParams {
+    #[validate(required(message = "field is required"))]
+     page: Option<i64>,
+     #[validate(required(message = "field is required"))]
+     per_page: Option<i64>,
+});

@@ -9,3 +9,10 @@ camel_case_struct!(UserEntity {
     photo: String,
     verified: bool
 });
+
+camel_case_struct!(UsersEntity {
+    users: Vec<UserEntity>,
+    total: i64,
+    page: i64,
+    per_page: i64,
+});

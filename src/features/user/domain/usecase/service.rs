@@ -6,10 +6,10 @@ use validator::Validate;
 use crate::{
     core::{error::APIError, types::AppResult},
     features::user::domain::{
-        entity::user::UserEntity,
+        entity::user::{UserEntity, UsersEntity},
         repository::user::IUserRepository,
         usecase::{
-            dto::{RegisterParams, UpdateUserParams},
+            dto::{PaginationParams, RegisterParams, UpdateUserParams},
             interface::IUserService,
         },
     },
@@ -46,5 +46,9 @@ impl IUserService for UserService {
 
     fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
         self.user_repo.delete(user_id)
+    }
+
+    fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
+      self.user_repo.users(params)
     }
 }

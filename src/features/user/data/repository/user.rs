@@ -13,8 +13,9 @@ use crate::{
         data::models::user::User,
         domain::{
             entity::user::UserEntity,
+            entity::user::UsersEntity,
             repository::user::IUserRepository,
-            usecase::dto::{RegisterParams, UpdateUserParams},
+            usecase::dto::{PaginationParams, RegisterParams, UpdateUserParams},
         },
     },
     schema::users::{self, dsl::*},
@@ -97,5 +98,39 @@ impl IUserRepository for UserRepository {
                     .map_err(|_| APIError::InternalError)
             })
             .map_err(|_| APIError::UserNotFoundError)?
+    }
+
+    fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
+        // Calculate the offset (skip `page * per_page` results)
+        let page = params.page.unwrap_or(1);
+        let per_page = params.per_page.unwrap_or(20);
+        let offset = (page - 1) * per_page;
+
+        let total = users::table
+            .count()
+            .get_result::<i64>(&mut self.source.get().unwrap())
+            .unwrap();
+
+        // Fetch users with a limit and offset (pagination)
+        users
+            .limit(per_page)
+            .offset(offset)
+            .load::<User>(&mut self.source.get().unwrap())
+            .map(|list_user| UsersEntity {
+                users: list_user
+                    .iter()
+                    .map(|user| UserEntity {
+                        id: user.id,
+                        name: user.name.clone(),
+                        email: user.email.clone(),
+                        photo: user.photo.clone(),
+                        verified: user.verified,
+                    })
+                    .collect(),
+                total,
+                page,
+                per_page,
+            })
+            .map_err(|_| APIError::InternalError)
     }
 }

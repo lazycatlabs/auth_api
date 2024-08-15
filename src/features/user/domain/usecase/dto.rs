@@ -46,3 +46,8 @@ pub struct UpdateUserParams {
     pub photo: Option<String>,
     pub verified: Option<bool>,
 }
+
+camel_case_struct!(PaginationParams {
+     page: Option<i64>,
+     per_page: Option<i64>,
+});

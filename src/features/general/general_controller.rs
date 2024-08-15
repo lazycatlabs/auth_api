@@ -23,5 +23,5 @@ pub async fn test_email(
     })?;
     send_email(params.0)
         .await
-        .map(|message| ResponseBody::<()>::success_with_message( None,message.as_str()).into())
+        .map(|message| ResponseBody::<()>::success_with_message(None, message.as_str()).into())
 }

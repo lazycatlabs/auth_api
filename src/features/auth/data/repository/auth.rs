@@ -1,4 +1,3 @@
-
 use bcrypt::{verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;

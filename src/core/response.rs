@@ -11,7 +11,7 @@ camel_case_struct!(Diagnostic {
 });
 
 camel_case_struct!(PageInfo {
-    page_number: i64,
+    current_page: i64,
     per_page: i64,
     last_page: i64,
     total: i64
@@ -27,9 +27,9 @@ impl Diagnostic {
 }
 
 impl PageInfo {
-    pub fn new(page_number: i64, per_page: i64, total: i64) -> PageInfo {
+    pub fn new(current_page: i64, per_page: i64, total: i64) -> PageInfo {
         PageInfo {
-            page_number,
+            current_page,
             per_page,
             last_page: (total as f64 / per_page as f64).ceil() as i64,
             total,
@@ -70,7 +70,7 @@ impl<T> ResponseBody<T> {
         ResponseBody {
             diagnostic: Diagnostic::new(STATUS_SUCCESS, MESSAGE_SUCCESS),
             data,
-            page: Some(PageInfo::new(page.page_number, page.per_page, page.total)),
+            page: Some(PageInfo::new(page.current_page, page.per_page, page.total)),
         }
     }
 

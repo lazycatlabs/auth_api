@@ -73,7 +73,7 @@ impl FromRequest for AuthMiddleware {
                 }
             })?;
 
-           Ok(AuthMiddleware {
+            Ok(AuthMiddleware {
                 user,
                 login_session: token_data.claims.login_session,
             })
@@ -99,7 +99,7 @@ pub fn decode_token(jwt: &str) -> AppResult<TokenData<AuthToken>> {
 pub fn token_extractor(auth: &str) -> String {
     let bearer_str = auth.split(' ').collect::<Vec<&str>>();
     let token_prefix = bearer_str[1].split('.').collect::<Vec<&str>>();
-    
+
     token_prefix[1..].join(".")
 }
 

@@ -49,6 +49,6 @@ impl IUserService for UserService {
     }
 
     fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
-      self.user_repo.users(params)
+        self.user_repo.users(params)
     }
 }

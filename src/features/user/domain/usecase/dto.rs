@@ -20,11 +20,13 @@ camel_case_struct!(RegisterParams {
       required(message = "field is required"),
       length(min = 3,max = 20,message = "Password must be between 3 and 20 characters"),
     )]
-    password: Option<String>
+    password: Option<String>,
+    photo: Option<String>,
 });
 
 impl From<RegisterParams> for User {
     fn from(params: RegisterParams) -> Self {
+        let default_photo = String::from("https://user-images.githubusercontent.com/1531684/281937715-f53c55be-4b70-43b5-bb50-11706fb71ada.png");
         User {
             id: Uuid::new_v4(),
             email: params.email.unwrap(),
@@ -33,7 +35,7 @@ impl From<RegisterParams> for User {
             role: String::from("user"),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
-            photo: String::from("default.png"),
+            photo: params.photo.unwrap_or(default_photo),
             verified: false,
         }
     }

@@ -23,7 +23,7 @@ pub async fn register(
         .di_container
         .user_service
         .register(params.0)
-        .map(|_| ResponseBody::<()>::success(None).into())
+        .map(|data| ResponseBody::success(Some(data)).into())
 }
 
 pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {

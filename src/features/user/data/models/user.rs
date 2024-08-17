@@ -27,11 +27,8 @@ pub struct User {
 
 impl User {
     pub fn hash_password(&mut self) -> AppResult<()> {
-        if let Ok(hashed_password) = hash(self.password.as_bytes(), DEFAULT_COST) {
-            self.password = hashed_password;
-            Ok(())
-        } else {
-            Err(APIError::InternalError)
-        }
+        hash(self.password.as_bytes(), DEFAULT_COST)
+            .map(|hashed_password| self.password = hashed_password)
+            .map_err(|_| APIError::InternalError)
     }
 }

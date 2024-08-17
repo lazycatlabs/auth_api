@@ -20,7 +20,8 @@ camel_case_struct!(RegisterParams {
       required(message = "field is required"),
       length(min = 3,max = 20,message = "Password must be between 3 and 20 characters"),
     )]
-    password: Option<String>
+    password: Option<String>,
+    photo: Option<String>,
 });
 
 impl From<RegisterParams> for User {
@@ -33,7 +34,7 @@ impl From<RegisterParams> for User {
             role: String::from("user"),
             created_at: Utc::now().naive_utc(),
             updated_at: Utc::now().naive_utc(),
-            photo: String::from("default.png"),
+            photo: params.photo.unwrap(),
             verified: false,
         }
     }

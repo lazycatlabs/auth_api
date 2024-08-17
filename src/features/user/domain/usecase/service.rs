@@ -27,7 +27,7 @@ impl UserService {
 }
 
 impl IUserService for UserService {
-    fn register(&self, params: RegisterParams) -> AppResult<String> {
+    fn register(&self, params: RegisterParams) -> AppResult<UserEntity> {
         params
             .validate()
             .map(|_| self.user_repo.create(params))

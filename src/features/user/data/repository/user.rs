@@ -5,7 +5,6 @@ use uuid::Uuid;
 
 use crate::{
     core::{
-        constants::MESSAGE_SUCCESS,
         error::APIError,
         types::{AppResult, DBConn},
     },
@@ -33,20 +32,29 @@ impl UserRepository {
 }
 
 impl IUserRepository for UserRepository {
-    fn create(&self, params: RegisterParams) -> AppResult<String> {
+    fn create(&self, params: RegisterParams) -> AppResult<UserEntity> {
         let mut user = User::from(params);
         let _ = user.hash_password();
+        let email_register = user.email.clone();
 
         diesel::insert_into(users::table)
             .values(&user)
             .execute(&mut self.source.get().unwrap())
-            .map(|_| MESSAGE_SUCCESS.to_string())
+            .map(|_| UserEntity {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                photo: user.photo,
+                verified: user.verified,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+            })
             .map_err(|e| match e {
                 diesel::result::Error::DatabaseError(
                     diesel::result::DatabaseErrorKind::UniqueViolation,
                     _,
                 ) => APIError::BadRequest {
-                    message: format!("Email '{}' already exists.", user.email),
+                    message: format!("Email '{}' already exists.", email_register),
                 },
                 _ => APIError::InternalError,
             })

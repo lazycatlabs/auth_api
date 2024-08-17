@@ -7,7 +7,9 @@ camel_case_struct!(UserEntity {
     name: String,
     email: String,
     photo: String,
-    verified: bool
+    verified: bool,
+    created_at: chrono::NaiveDateTime,
+    updated_at: chrono::NaiveDateTime,
 });
 
 camel_case_struct!(UsersEntity {

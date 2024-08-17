@@ -62,6 +62,8 @@ impl IUserRepository for UserRepository {
                 email: user.email,
                 photo: user.photo,
                 verified: user.verified,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
             })
             .map_err(|_| APIError::UserNotFoundError)
     }
@@ -83,6 +85,8 @@ impl IUserRepository for UserRepository {
                         email: updated_user.email,
                         photo: updated_user.photo,
                         verified: updated_user.verified,
+                        created_at: updated_user.created_at,
+                        updated_at: updated_user.updated_at,
                     })
                     .map_err(|_| APIError::InternalError)
             })
@@ -125,6 +129,8 @@ impl IUserRepository for UserRepository {
                         email: user.email.clone(),
                         photo: user.photo.clone(),
                         verified: user.verified,
+                        created_at: user.created_at,
+                        updated_at: user.updated_at,
                     })
                     .collect(),
                 total,

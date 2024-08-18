@@ -19,7 +19,7 @@ use crate::{
     },
     features::{
         auth::{data::models::auth_token::AuthToken, domain::usecase::interface::IAuthService},
-        user::{domain::entity::user::UserEntity, domain::usecase::interface::IUserService},
+        user::{domain::entity::user_response::UserEntity, domain::usecase::interface::IUserService},
     },
 };
 

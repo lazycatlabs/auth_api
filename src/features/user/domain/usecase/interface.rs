@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::{
     core::types::AppResult,
     features::user::domain::{
-        entity::user::{UserEntity, UsersEntity},
+        entity::user_response::{UserEntity, UsersEntity},
         usecase::dto::{PaginationParams, RegisterParams, UpdateUserParams},
     },
 };

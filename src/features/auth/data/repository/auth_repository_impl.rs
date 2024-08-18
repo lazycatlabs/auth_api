@@ -16,7 +16,8 @@ use crate::{
                 login_info::LoginInfo,
             },
             domain::{
-                entity::auth::AuthEntity, repository::auth::IAuthRepository, usecase::dto::*,
+                entity::auth_response::AuthResponse,
+                repository::auth_repository::AuthRepositoryImpl, usecase::dto::*,
             },
         },
         user::data::models::user::User,
@@ -38,7 +39,7 @@ impl AuthRepository {
     }
 }
 
-impl IAuthRepository for AuthRepository {
+impl AuthRepositoryImpl for AuthRepository {
     fn add_user_session(&self, user: Uuid, login_params: LoginParams) -> AppResult<LoginHistory> {
         // get user information by id
         let now = Utc::now().naive_utc();
@@ -79,7 +80,7 @@ impl IAuthRepository for AuthRepository {
             .map_err(|_| APIError::InternalError)
     }
 
-    fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+    fn login(&self, params: LoginParams) -> AppResult<AuthResponse> {
         let param = params.clone();
         let email_param = param.email.as_deref().unwrap_or("");
         let password_param = param.password.as_deref().unwrap_or("");
@@ -97,7 +98,7 @@ impl IAuthRepository for AuthRepository {
                                     email: user.email,
                                     login_session: login_session.id,
                                 };
-                                AuthToken::generate_token(&login_info).map(AuthEntity::new)
+                                AuthToken::generate_token(&login_info).map(AuthResponse::new)
                             })
                             .unwrap_or(Err(APIError::InternalError))
                     })
@@ -106,10 +107,10 @@ impl IAuthRepository for AuthRepository {
             .map_err(|_| APIError::UserNotFoundError)?
     }
 
-    fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthEntity> {
+    fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthResponse> {
         params
             .verify()
-            .then(|| GeneralToken::generate_general_token().map(AuthEntity::new))
+            .then(|| GeneralToken::generate_general_token().map(AuthResponse::new))
             .unwrap_or(Err(APIError::InvalidCredentials))
     }
 

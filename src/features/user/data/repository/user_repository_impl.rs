@@ -11,9 +11,9 @@ use crate::{
     features::user::{
         data::models::user::User,
         domain::{
-            entity::user::UserEntity,
-            entity::user::UsersEntity,
-            repository::user::IUserRepository,
+            entity::user_response::UserEntity,
+            entity::user_response::UsersEntity,
+            repository::user_repository::UserRepositoryImpl,
             usecase::dto::{PaginationParams, RegisterParams, UpdateUserParams},
         },
     },
@@ -31,7 +31,7 @@ impl UserRepository {
     }
 }
 
-impl IUserRepository for UserRepository {
+impl UserRepositoryImpl for UserRepository {
     fn create(&self, params: RegisterParams) -> AppResult<UserEntity> {
         let mut user = User::from(params);
         let _ = user.hash_password();

@@ -10,23 +10,26 @@ use crate::{
         auth::{
             data::models::{auth_token::AuthToken, login_history::LoginHistory},
             domain::{
-                entity::auth::AuthEntity,
-                repository::auth::IAuthRepository,
+                entity::auth_response::AuthResponse,
+                repository::auth_repository::AuthRepositoryImpl,
                 usecase::{dto::*, interface::IAuthService},
             },
         },
-        user::domain::repository::user::IUserRepository,
+        user::domain::repository::user_repository::UserRepositoryImpl,
     },
 };
 
 #[derive(Clone)]
 pub struct AuthService {
-    pub auth_repo: Arc<dyn IAuthRepository>,
-    pub user_repo: Arc<dyn IUserRepository>,
+    pub auth_repo: Arc<dyn AuthRepositoryImpl>,
+    pub user_repo: Arc<dyn UserRepositoryImpl>,
 }
 
 impl AuthService {
-    pub fn new(auth_repo: Arc<dyn IAuthRepository>, user_repo: Arc<dyn IUserRepository>) -> Self {
+    pub fn new(
+        auth_repo: Arc<dyn AuthRepositoryImpl>,
+        user_repo: Arc<dyn UserRepositoryImpl>,
+    ) -> Self {
         Self {
             auth_repo,
             user_repo,
@@ -35,7 +38,7 @@ impl AuthService {
 }
 
 impl IAuthService for AuthService {
-    fn login(&self, params: LoginParams) -> AppResult<AuthEntity> {
+    fn login(&self, params: LoginParams) -> AppResult<AuthResponse> {
         params
             .validate()
             .map_err(|e| APIError::BadRequest {
@@ -62,7 +65,7 @@ impl IAuthService for AuthService {
         self.auth_repo.get_user_session(user)
     }
 
-    fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthEntity> {
+    fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthResponse> {
         self.auth_repo.general_token(token)
     }
 

@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::{
     core::types::DBConn,
     features::{
-        auth::{data::repository::auth::AuthRepository, domain::usecase::service::AuthService},
-        user::{data::repository::user::UserRepository, domain::usecase::service::UserService},
+        auth::{data::repository::auth_repository_impl::AuthRepository, domain::usecase::service::AuthService},
+        user::{data::repository::user_repository_impl::UserRepository, domain::usecase::service::UserService},
     },
 };
 

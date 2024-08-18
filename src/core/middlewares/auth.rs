@@ -18,7 +18,7 @@ use crate::{
         types::AppResult,
     },
     features::{
-        auth::{data::models::auth_token::AuthToken, domain::usecase::interface::IAuthService},
+        auth::{data::models::auth_token::AuthToken, domain::usecases::interface::IAuthService},
         user::{domain::entity::user_response::UserEntity, domain::usecase::interface::IUserService},
     },
 };

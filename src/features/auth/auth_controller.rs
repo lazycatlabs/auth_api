@@ -6,7 +6,7 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecase::{dto::*, interface::IAuthService},
+    features::auth::domain::usecases::{dto::*, interface::IAuthService, auth_login::*},
 };
 
 pub async fn general_token(
@@ -20,7 +20,7 @@ pub async fn general_token(
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn login(
+pub async fn login_contoller(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
     req: HttpRequest,
@@ -31,10 +31,7 @@ pub async fn login(
         ip_addr: Some(ip_addr),
         ..params.into_inner()
     };
-    state
-        .di_container
-        .auth_service
-        .login(new_params)
+    auth_login(&state.di_container.auth_repository, new_params)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 

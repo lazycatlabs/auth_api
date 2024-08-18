@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     core::types::DBConn,
     features::{
-        auth::{data::repository::auth_repository_impl::AuthRepository, domain::usecase::service::AuthService},
+        auth::{data::repository::auth_repository_impl::AuthRepository, domain::usecases::service::AuthService},
         user::{data::repository::user_repository_impl::UserRepository, domain::usecase::service::UserService},
     },
 };
@@ -12,6 +12,7 @@ use crate::{
 pub struct DiContainer {
     pub user_service: UserService,
     pub auth_service: AuthService,
+    pub auth_repository: AuthRepository,
 }
 
 impl DiContainer {
@@ -30,6 +31,7 @@ impl DiContainer {
         Self {
             user_service,
             auth_service,
+            auth_repository,
         }
     }
 }

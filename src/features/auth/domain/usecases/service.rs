@@ -12,7 +12,7 @@ use crate::{
             domain::{
                 entity::auth_response::AuthResponse,
                 repository::auth_repository::AuthRepositoryImpl,
-                usecase::{dto::*, interface::IAuthService},
+                usecases::{dto::*, interface::IAuthService},
             },
         },
         user::domain::repository::user_repository::UserRepositoryImpl,
@@ -38,14 +38,14 @@ impl AuthService {
 }
 
 impl IAuthService for AuthService {
-    fn login(&self, params: LoginParams) -> AppResult<AuthResponse> {
-        params
-            .validate()
-            .map_err(|e| APIError::BadRequest {
-                message: e.to_string(),
-            })
-            .and_then(|_| self.auth_repo.login(params))
-    }
+    // fn login(&self, params: LoginParams) -> AppResult<AuthResponse> {
+    //     params
+    //         .validate()
+    //         .map_err(|e| APIError::BadRequest {
+    //             message: e.to_string(),
+    //         })
+    //         .and_then(|_| self.auth_repo.login(params))
+    // }
 
     fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()> {
         self.auth_repo

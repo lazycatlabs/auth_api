@@ -16,37 +16,7 @@ pub struct LoginHistoryParams {
     pub fcm_token: String,
 }
 
-camel_case_struct!(LoginParams {
-  #[validate(
-    required(message = "field is required"),
-    email(message = "Invalid email"),
-  )]
-   email: Option<String>,
-  #[validate(
-    required(message = "field is required"),
-    length(min = 3, max = 20),
-  )]
-   password: Option<String>,
-  #[validate(
-    length(min = 1, message = "Can't be empty"),
-  )]
-   ip_addr: Option<String>,
-  #[validate(
-    required(message = "field is required"),
-    length(min = 1, message = "Can't be empty"),
-  )]
-   device_info: Option<String>,
-  #[validate(
-    required(message = "field is required"),
-    length(min = 1, message = "Can't be empty"),
-  )]
-   os_info: Option<String>,
-  #[validate(
-    required(message = "field is required"),
-    length(min = 1, message = "Can't be empty"),
-  )]
-   fcm_token: Option<String>
-});
+
 
 camel_case_struct!(GeneralTokenParams {
   #[validate(

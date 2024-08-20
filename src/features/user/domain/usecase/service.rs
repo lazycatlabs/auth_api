@@ -6,8 +6,8 @@ use validator::Validate;
 use crate::{
     core::{error::APIError, types::AppResult},
     features::user::domain::{
-        entity::user::{UserEntity, UsersEntity},
-        repository::user::IUserRepository,
+        entity::user_response::{UserEntity, UsersEntity},
+        repository::user_repository::UserRepositoryImpl,
         usecase::{
             dto::{PaginationParams, RegisterParams, UpdateUserParams},
             interface::IUserService,
@@ -17,11 +17,11 @@ use crate::{
 
 #[derive(Clone)]
 pub struct UserService {
-    pub user_repo: Arc<dyn IUserRepository>,
+    pub user_repo: Arc<dyn UserRepositoryImpl>,
 }
 
 impl UserService {
-    pub fn new(user_repo: Arc<dyn IUserRepository>) -> Self {
+    pub fn new(user_repo: Arc<dyn UserRepositoryImpl>) -> Self {
         Self { user_repo }
     }
 }

@@ -24,19 +24,23 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                 web::scope("/auth")
                     .service(
                         web::resource("/general")
-                            .route(web::post().to(auth_controller::general_token)),
+                            .route(web::post().to(auth_controller::general_token_controller)),
                     )
-                    .service(web::resource("/login").route(web::post().to(auth_controller::login)))
                     .service(
-                        web::resource("/logout").route(web::post().to(auth_controller::logout)),
+                        web::resource("/login")
+                            .route(web::post().to(auth_controller::login_contoller)),
+                    )
+                    .service(
+                        web::resource("/logout")
+                            .route(web::post().to(auth_controller::logout_controller)),
                     )
                     .service(
                         web::resource("/session")
-                            .route(web::get().to(auth_controller::login_session)),
+                            .route(web::get().to(auth_controller::login_session_controller)),
                     )
                     .service(
                         web::resource("/password")
-                            .route(web::put().to(auth_controller::update_password)),
+                            .route(web::put().to(auth_controller::update_password_controller)),
                     ),
             )
             .service(

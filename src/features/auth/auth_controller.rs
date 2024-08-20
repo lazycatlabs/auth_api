@@ -6,21 +6,20 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecase::{dto::*, interface::IAuthService},
+    features::auth::domain::usecases::{
+        general_token::*, login::*, login_session::*, logout::*, update_password::*,
+    },
 };
 
-pub async fn general_token(
+pub async fn general_token_controller(
     state: web::Data<AppState>,
     params: Json<GeneralTokenParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .general_token(params.0)
+    general_token(&state.di_container.auth_repository, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn login(
+pub async fn login_contoller(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
     req: HttpRequest,
@@ -31,40 +30,35 @@ pub async fn login(
         ip_addr: Some(ip_addr),
         ..params.into_inner()
     };
-    state
-        .di_container
-        .auth_service
-        .login(new_params)
+    login(&state.di_container.auth_repository, new_params)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn logout(state: web::Data<AppState>, auth: AuthMiddleware) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .logout(auth.user.id, auth.login_session)
-        .map(|_| ResponseBody::<()>::success(None).into())
-}
-
-pub async fn login_session(
+pub async fn logout_controller(
     state: web::Data<AppState>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .login_session(auth.user.id)
+    logout(
+        &state.di_container.auth_repository,
+        auth.user.id,
+        auth.login_session,
+    )
+    .map(|_| ResponseBody::<()>::success(None).into())
+}
+
+pub async fn login_session_controller(
+    state: web::Data<AppState>,
+    auth: AuthMiddleware,
+) -> AppResult<HttpResponse> {
+    login_session(&state.di_container.auth_repository, auth.user.id)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn update_password(
+pub async fn update_password_controller(
     state: web::Data<AppState>,
     params: Json<UpdatePasswordParams>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .update_password(auth.user.id, params.0)
+    update_password(&state.di_container.auth_repository, auth.user.id, params.0)
         .map(|_| ResponseBody::<()>::success(None).into())
 }

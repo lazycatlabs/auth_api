@@ -18,8 +18,13 @@ use crate::{
         types::AppResult,
     },
     features::{
-        auth::{data::models::auth_token::AuthToken, domain::usecase::interface::IAuthService},
-        user::{domain::entity::user::UserEntity, domain::usecase::interface::IUserService},
+        auth::{
+            data::models::auth_token::AuthToken,
+            domain::repository::auth_repository::AuthRepositoryImpl,
+        },
+        user::{
+            domain::entity::user_response::UserEntity, domain::usecase::interface::IUserService,
+        },
     },
 };
 
@@ -61,7 +66,7 @@ impl FromRequest for AuthMiddleware {
             let token_data =
                 decode_token(&token.to_string()).map_err(|_| APIError::Unauthorized)?;
 
-            let user_id = di.auth_service.verify_token(&token_data).map_err(|_| {
+            let user_id = di.auth_repository.verify_token(&token_data).map_err(|_| {
                 APIError::UnauthorizedMessage {
                     message: "Token verification failed".to_string(),
                 }

@@ -2,12 +2,13 @@ use dotenv_codegen::dotenv;
 
 use crate::camel_case_struct;
 
-camel_case_struct!(AuthEntity {
+// the response is used for Auth and General token
+camel_case_struct!(AuthResponse {
     token: String,
     token_type: String
 });
 
-impl AuthEntity {
+impl AuthResponse {
     pub fn new(token: String) -> Self {
         Self {
             token: format!("{}.{}", dotenv!("TOKEN_PREFIX"), token),

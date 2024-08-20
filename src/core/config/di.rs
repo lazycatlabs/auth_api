@@ -3,15 +3,17 @@ use std::sync::Arc;
 use crate::{
     core::types::DBConn,
     features::{
-        auth::{data::repository::auth_repository_impl::AuthRepository, domain::usecases::service::AuthService},
-        user::{data::repository::user_repository_impl::UserRepository, domain::usecase::service::UserService},
+        auth::data::repository::auth_repository_impl::AuthRepository,
+        user::{
+            data::repository::user_repository_impl::UserRepository,
+            domain::usecase::service::UserService,
+        },
     },
 };
 
 #[derive(Clone)]
 pub struct DiContainer {
     pub user_service: UserService,
-    pub auth_service: AuthService,
     pub auth_repository: AuthRepository,
 }
 
@@ -23,14 +25,9 @@ impl DiContainer {
 
         // auth
         let auth_repository = AuthRepository::new(db_conn.clone());
-        let auth_service = AuthService::new(
-            Arc::new(auth_repository.clone()),
-            Arc::new(user_repository.clone()),
-        );
 
         Self {
             user_service,
-            auth_service,
             auth_repository,
         }
     }

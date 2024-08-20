@@ -10,6 +10,9 @@ use crate::{
     },
 };
 
-pub fn login_session(auth_repository: &AuthRepository, user_id: Uuid) -> AppResult<Vec<LoginHistory>> {
+pub fn login_session(
+    auth_repository: &AuthRepository,
+    user_id: Uuid,
+) -> AppResult<Vec<LoginHistory>> {
     auth_repository.get_user_session(user_id)
 }

@@ -6,8 +6,10 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecases::{dto::*, interface::IAuthService, auth_login::*},
+    features::auth::domain::usecases::{dto::*, interface::IAuthService, login::*},
 };
+
+use super::domain::usecases::logout::logout;
 
 pub async fn general_token(
     state: web::Data<AppState>,
@@ -31,16 +33,20 @@ pub async fn login_contoller(
         ip_addr: Some(ip_addr),
         ..params.into_inner()
     };
-    auth_login(&state.di_container.auth_repository, new_params)
+    login(&state.di_container.auth_repository, new_params)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn logout(state: web::Data<AppState>, auth: AuthMiddleware) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .logout(auth.user.id, auth.login_session)
-        .map(|_| ResponseBody::<()>::success(None).into())
+pub async fn logout_controller(
+    state: web::Data<AppState>,
+    auth: AuthMiddleware,
+) -> AppResult<HttpResponse> {
+    logout(
+        &state.di_container.auth_repository,
+        auth.user.id,
+        auth.login_session,
+    )
+    .map(|_| ResponseBody::<()>::success(None).into())
 }
 
 pub async fn login_session(

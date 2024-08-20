@@ -6,7 +6,7 @@ use crate::{
         data::models::login_history::LoginHistory,
         domain::{
             entity::auth_response::AuthResponse,
-            usecases::{dto::*, auth_login::LoginParams},
+            usecases::{dto::*, login::LoginParams},
         },
     },
 };

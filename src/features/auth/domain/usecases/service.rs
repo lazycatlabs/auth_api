@@ -47,12 +47,12 @@ impl IAuthService for AuthService {
     //         .and_then(|_| self.auth_repo.login(params))
     // }
 
-    fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()> {
-        self.auth_repo
-            .remove_user_session(user, login_session)
-            .then_some(())
-            .ok_or(APIError::InvalidCredentials)
-    }
+    // fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()> {
+    //     self.auth_repo
+    //         .remove_user_session(user, login_session)
+    //         .then_some(())
+    //         .ok_or(APIError::InvalidCredentials)
+    // }
 
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
         self.auth_repo

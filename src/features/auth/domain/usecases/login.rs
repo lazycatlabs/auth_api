@@ -43,10 +43,7 @@ camel_case_struct!(LoginParams {
    fcm_token: Option<String>
 });
 
-pub fn auth_login(
-    auth_repository: &AuthRepository,
-    params: LoginParams,
-) -> AppResult<AuthResponse> {
+pub fn login(auth_repository: &AuthRepository, params: LoginParams) -> AppResult<AuthResponse> {
     params
         .validate()
         .map_err(|e| APIError::BadRequest {

@@ -11,7 +11,7 @@ use crate::{
 
 pub trait IAuthService: Send + Sync {
     // fn login(&self, params: LoginParams) -> AppResult<AuthResponse>;
-    fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()>;
+    // fn logout(&self, user: Uuid, login_session: Uuid) -> AppResult<()>;
     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid>;
     fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>>;
     fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthResponse>;

@@ -35,9 +35,9 @@ impl IUserService for UserService {
     //         })?
     // }
 
-    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserResponse> {
-        self.user_repo.find_user_by_id(user_id)
-    }
+    // fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserResponse> {
+    //     self.user_repo.find_user_by_id(user_id)
+    // }
 
     fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
         self.user_repo.update_user(user_id, params)

@@ -15,7 +15,7 @@ use crate::{
             entity::user_response::UserResponse,
             entity::user_response::UsersResponse,
             repository::user_repository::UserRepositoryImpl,
-            usecase::{dto::PaginationParams, register::RegisterParams},
+            usecase::{list_user::PaginationParams, register::RegisterParams},
         },
     },
     schema::users::{self, dsl::*},

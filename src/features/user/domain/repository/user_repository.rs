@@ -4,7 +4,9 @@ use crate::{
     core::types::AppResult,
     features::user::domain::{
         entity::user_response::{UserResponse, UsersResponse},
-        usecase::{dto::*, register::RegisterParams, update_user::UpdateUserParams},
+        usecase::{
+            list_user::PaginationParams, register::RegisterParams, update_user::UpdateUserParams,
+        },
     },
 };
 

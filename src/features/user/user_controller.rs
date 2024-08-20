@@ -8,9 +8,7 @@ use crate::{
         response::{Diagnostic, PageInfo, ResponseBody},
         types::AppResult,
     },
-    features::user::domain::usecase::{
-        delete_user::*, dto::PaginationParams, interface::IUserService, register::*, update_user::*,
-    },
+    features::user::domain::usecase::{delete_user::*, list_user::*, register::*, update_user::*},
 };
 
 pub async fn register_controller(
@@ -44,12 +42,12 @@ pub async fn delete_user_controller(
     })
 }
 
-pub async fn users(
+pub async fn users_controller(
     _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: web::Query<PaginationParams>,
 ) -> AppResult<HttpResponse> {
-    state.di_container.user_service.users(params.0).map(|data| {
+    list_user(&state.di_container.user_repository, params.0).map(|data| {
         ResponseBody::success_pagination(
             Some(data.users),
             PageInfo::new(data.page, data.per_page, data.total),

@@ -1,14 +1,7 @@
 use std::sync::Arc;
 
-use uuid::Uuid;
-
-use crate::{
-    core::types::AppResult,
-    features::user::domain::{
-        entity::user_response::UsersResponse,
-        repository::user_repository::UserRepositoryImpl,
-        usecase::{dto::PaginationParams, interface::IUserService},
-    },
+use crate::features::user::domain::{
+    repository::user_repository::UserRepositoryImpl, usecase::interface::IUserService,
 };
 
 #[derive(Clone)]
@@ -44,7 +37,7 @@ impl IUserService for UserService {
     //     self.user_repo.delete(user_id)
     // }
 
-    fn users(&self, params: PaginationParams) -> AppResult<UsersResponse> {
-        self.user_repo.users(params)
-    }
+    // fn users(&self, params: PaginationParams) -> AppResult<UsersResponse> {
+    //     self.user_repo.users(params)
+    // }
 }

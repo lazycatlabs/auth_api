@@ -5,12 +5,9 @@ use uuid::Uuid;
 use crate::{
     core::types::AppResult,
     features::user::domain::{
-        entity::user_response::{UserResponse, UsersResponse},
+        entity::user_response::UsersResponse,
         repository::user_repository::UserRepositoryImpl,
-        usecase::{
-            dto::{PaginationParams, UpdateUserParams},
-            interface::IUserService,
-        },
+        usecase::{dto::PaginationParams, interface::IUserService},
     },
 };
 
@@ -39,9 +36,9 @@ impl IUserService for UserService {
     //     self.user_repo.find_user_by_id(user_id)
     // }
 
-    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
-        self.user_repo.update_user(user_id, params)
-    }
+    // fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
+    //     self.user_repo.update_user(user_id, params)
+    // }
 
     fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
         self.user_repo.delete(user_id)

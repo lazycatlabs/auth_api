@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use uuid::Uuid;
 
+use crate::features::user::domain::usecase::update_user::UpdateUserParams;
 use crate::{
     core::{
         error::APIError,
@@ -14,10 +15,7 @@ use crate::{
             entity::user_response::UserResponse,
             entity::user_response::UsersResponse,
             repository::user_repository::UserRepositoryImpl,
-            usecase::{
-              dto::{PaginationParams, UpdateUserParams},
-              register::RegisterParams,
-            },
+            usecase::{dto::PaginationParams, register::RegisterParams},
         },
     },
     schema::users::{self, dsl::*},

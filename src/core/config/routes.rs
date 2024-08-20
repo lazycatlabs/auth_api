@@ -49,7 +49,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                         web::resource("")
                             .route(web::post().to(user_controller::register_controller))
                             .route(web::get().to(user_controller::get_user))
-                            .route(web::put().to(user_controller::update_user))
+                            .route(web::put().to(user_controller::update_user_controller))
                             .route(web::delete().to(user_controller::delete_user)),
                     )
                     .service(web::resource("/all").route(web::get().to(user_controller::users))),

@@ -9,9 +9,7 @@ use crate::{
         types::AppResult,
     },
     features::user::domain::usecase::{
-        dto::{PaginationParams, UpdateUserParams},
-        interface::IUserService,
-        register::*,
+        dto::PaginationParams, interface::IUserService, register::*, update_user::*,
     },
 };
 
@@ -28,15 +26,12 @@ pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {
     Ok(ResponseBody::success(Some(auth.user)).into())
 }
 
-pub async fn update_user(
+pub async fn update_user_controller(
     auth: AuthMiddleware,
     state: web::Data<AppState>,
     params: Json<UpdateUserParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .update_user(auth.user.id, params.0)
+    update_user(&state.di_container.user_repository, auth.user.id, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 

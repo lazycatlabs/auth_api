@@ -4,7 +4,7 @@ use crate::{
     core::types::AppResult,
     features::user::domain::{
         entity::user_response::{UserResponse, UsersResponse},
-        usecase::{dto::*, register::RegisterParams},
+        usecase::{dto::*, register::RegisterParams, update_user::UpdateUserParams},
     },
 };
 

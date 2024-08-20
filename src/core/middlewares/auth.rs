@@ -23,8 +23,7 @@ use crate::{
             domain::repository::auth_repository::AuthRepositoryImpl,
         },
         user::domain::{
-          entity::user_response::UserResponse,
-          repository::user_repository::UserRepositoryImpl,
+            entity::user_response::UserResponse, repository::user_repository::UserRepositoryImpl,
         },
     },
 };

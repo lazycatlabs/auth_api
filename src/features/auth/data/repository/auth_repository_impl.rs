@@ -2,6 +2,7 @@ use bcrypt::{verify, DEFAULT_COST};
 use chrono::Utc;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
+use jsonwebtoken::TokenData;
 use uuid::Uuid;
 
 use crate::{
@@ -144,5 +145,11 @@ impl AuthRepositoryImpl for AuthRepository {
                 }
             })
             .map_err(|_| APIError::InternalError)
+    }
+
+     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
+        self.is_valid_login_session(params.claims.jti, params.claims.login_session)
+            .then_some(params.claims.jti)
+            .ok_or(APIError::Unauthorized)
     }
 }

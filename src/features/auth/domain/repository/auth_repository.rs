@@ -1,9 +1,10 @@
+use jsonwebtoken::TokenData;
 use uuid::Uuid;
 
 use crate::{
     core::types::AppResult,
     features::auth::{
-        data::models::login_history::LoginHistory,
+        data::models::{auth_token::AuthToken, login_history::LoginHistory},
         domain::{
             entity::auth_response::AuthResponse,
             usecases::{dto::*, general_token::GeneralTokenParams, login::LoginParams},
@@ -19,4 +20,5 @@ pub trait AuthRepositoryImpl: Send + Sync {
     fn general_token(&self, params: GeneralTokenParams) -> AppResult<AuthResponse>;
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool;
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()>;
+    fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid>;
 }

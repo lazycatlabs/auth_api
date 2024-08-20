@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-use jsonwebtoken::TokenData;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -8,7 +7,7 @@ use crate::{
     core::{error::APIError, types::AppResult},
     features::{
         auth::{
-            data::models::{auth_token::AuthToken, login_history::LoginHistory},
+            data::models::login_history::LoginHistory,
             domain::{
                 repository::auth_repository::AuthRepositoryImpl,
                 usecases::{dto::*, interface::IAuthService},
@@ -53,12 +52,12 @@ impl IAuthService for AuthService {
     //         .ok_or(APIError::InvalidCredentials)
     // }
 
-    fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
-        self.auth_repo
-            .is_valid_login_session(params.claims.jti, params.claims.login_session)
-            .then_some(params.claims.jti)
-            .ok_or(APIError::Unauthorized)
-    }
+    // fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
+    //     self.auth_repo
+    //         .is_valid_login_session(params.claims.jti, params.claims.login_session)
+    //         .then_some(params.claims.jti)
+    //         .ok_or(APIError::Unauthorized)
+    // }
 
     fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
         self.auth_repo.get_user_session(user)

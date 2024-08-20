@@ -9,7 +9,7 @@ use crate::{
         types::AppResult,
     },
     features::user::domain::usecase::{
-        dto::PaginationParams, interface::IUserService, register::*, update_user::*,
+        delete_user::*, dto::PaginationParams, interface::IUserService, register::*, update_user::*,
     },
 };
 
@@ -35,17 +35,13 @@ pub async fn update_user_controller(
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn delete_user(
+pub async fn delete_user_controller(
     auth: AuthMiddleware,
     state: web::Data<AppState>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .delete_user(auth.user.id)
-        .map(|data| {
-            ResponseBody::<()>::new(Diagnostic::new(STATUS_SUCCESS, data.as_str()), None).into()
-        })
+    delete_user(&state.di_container.user_repository, auth.user.id).map(|data| {
+        ResponseBody::<()>::new(Diagnostic::new(STATUS_SUCCESS, data.as_str()), None).into()
+    })
 }
 
 pub async fn users(

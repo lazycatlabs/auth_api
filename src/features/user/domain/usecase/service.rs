@@ -40,9 +40,9 @@ impl IUserService for UserService {
     //     self.user_repo.update_user(user_id, params)
     // }
 
-    fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
-        self.user_repo.delete(user_id)
-    }
+    // fn delete_user(&self, user_id: Uuid) -> AppResult<String> {
+    //     self.user_repo.delete(user_id)
+    // }
 
     fn users(&self, params: PaginationParams) -> AppResult<UsersResponse> {
         self.user_repo.users(params)

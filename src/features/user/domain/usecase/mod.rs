@@ -1,3 +1,4 @@
+pub mod delete_user;
 pub mod dto;
 pub mod interface;
 pub mod register;

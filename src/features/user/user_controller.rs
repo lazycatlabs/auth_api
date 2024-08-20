@@ -9,20 +9,18 @@ use crate::{
         types::AppResult,
     },
     features::user::domain::usecase::{
-        dto::{PaginationParams, RegisterParams, UpdateUserParams},
+        dto::{PaginationParams, UpdateUserParams},
         interface::IUserService,
+        register::*,
     },
 };
 
-pub async fn register(
+pub async fn register_controller(
     _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .register(params.0)
+    register(&state.di_container.user_repository, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 

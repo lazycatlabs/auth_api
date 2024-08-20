@@ -1,15 +1,14 @@
 use std::sync::Arc;
 
 use uuid::Uuid;
-use validator::Validate;
 
 use crate::{
-    core::{error::APIError, types::AppResult},
+    core::types::AppResult,
     features::user::domain::{
-        entity::user_response::{UserEntity, UsersEntity},
+        entity::user_response::{UserResponse, UsersResponse},
         repository::user_repository::UserRepositoryImpl,
         usecase::{
-            dto::{PaginationParams, RegisterParams, UpdateUserParams},
+            dto::{PaginationParams, UpdateUserParams},
             interface::IUserService,
         },
     },
@@ -27,20 +26,20 @@ impl UserService {
 }
 
 impl IUserService for UserService {
-    fn register(&self, params: RegisterParams) -> AppResult<UserEntity> {
-        params
-            .validate()
-            .map(|_| self.user_repo.create(params))
-            .map_err(|e| APIError::BadRequest {
-                message: e.to_string(),
-            })?
-    }
+    // fn register(&self, params: RegisterParams) -> AppResult<UserEntity> {
+    //     params
+    //         .validate()
+    //         .map(|_| self.user_repo.create(params))
+    //         .map_err(|e| APIError::BadRequest {
+    //             message: e.to_string(),
+    //         })?
+    // }
 
-    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
+    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserResponse> {
         self.user_repo.find_user_by_id(user_id)
     }
 
-    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity> {
+    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
         self.user_repo.update_user(user_id, params)
     }
 
@@ -48,7 +47,7 @@ impl IUserService for UserService {
         self.user_repo.delete(user_id)
     }
 
-    fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
+    fn users(&self, params: PaginationParams) -> AppResult<UsersResponse> {
         self.user_repo.users(params)
     }
 }

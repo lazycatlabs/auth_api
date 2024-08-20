@@ -15,6 +15,7 @@ use crate::{
 pub struct DiContainer {
     pub user_service: UserService,
     pub auth_repository: AuthRepository,
+    pub user_repository: UserRepository,
 }
 
 impl DiContainer {
@@ -29,6 +30,7 @@ impl DiContainer {
         Self {
             user_service,
             auth_repository,
+            user_repository,
         }
     }
 }

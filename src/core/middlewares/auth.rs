@@ -23,13 +23,13 @@ use crate::{
             domain::repository::auth_repository::AuthRepositoryImpl,
         },
         user::{
-            domain::entity::user_response::UserEntity, domain::usecase::interface::IUserService,
+            domain::entity::user_response::UserResponse, domain::usecase::interface::IUserService,
         },
     },
 };
 
 pub struct AuthMiddleware {
-    pub user: UserEntity,
+    pub user: UserResponse,
     pub login_session: Uuid,
 }
 

@@ -6,19 +6,16 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecases::{dto::*, interface::IAuthService, login::*},
+    features::auth::domain::usecases::{general_token::*, login::*, logout::*},
 };
 
-use super::domain::usecases::logout::logout;
+use super::domain::usecases::{dto::UpdatePasswordParams, interface::IAuthService};
 
-pub async fn general_token(
+pub async fn general_token_controller(
     state: web::Data<AppState>,
     params: Json<GeneralTokenParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .general_token(params.0)
+    general_token(&state.di_container.auth_repository, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 

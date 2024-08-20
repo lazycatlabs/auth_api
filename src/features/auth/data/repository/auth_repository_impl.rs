@@ -4,7 +4,6 @@ use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use uuid::Uuid;
 
-use crate::features::auth::domain::usecases::login::LoginParams;
 use crate::{
     core::{
         error::APIError,
@@ -18,7 +17,9 @@ use crate::{
             },
             domain::{
                 entity::auth_response::AuthResponse,
-                repository::auth_repository::AuthRepositoryImpl, usecases::dto::*,
+                repository::auth_repository::AuthRepositoryImpl,
+                usecases::dto::*,
+                usecases::{general_token::GeneralTokenParams, login::LoginParams},
             },
         },
         user::data::models::user::User,

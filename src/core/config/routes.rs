@@ -24,7 +24,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                 web::scope("/auth")
                     .service(
                         web::resource("/general")
-                            .route(web::post().to(auth_controller::general_token)),
+                            .route(web::post().to(auth_controller::general_token_controller)),
                     )
                     .service(
                         web::resource("/login")

@@ -10,7 +10,6 @@ use crate::{
         auth::{
             data::models::{auth_token::AuthToken, login_history::LoginHistory},
             domain::{
-                entity::auth_response::AuthResponse,
                 repository::auth_repository::AuthRepositoryImpl,
                 usecases::{dto::*, interface::IAuthService},
             },
@@ -65,9 +64,9 @@ impl IAuthService for AuthService {
         self.auth_repo.get_user_session(user)
     }
 
-    fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthResponse> {
-        self.auth_repo.general_token(token)
-    }
+    // fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthResponse> {
+    //     self.auth_repo.general_token(token)
+    // }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
         params

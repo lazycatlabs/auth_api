@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::camel_case_struct;
 
-camel_case_struct!(UserEntity {
+camel_case_struct!(UserResponse {
     id: Uuid,
     name: String,
     email: String,
@@ -12,8 +12,8 @@ camel_case_struct!(UserEntity {
     updated_at: chrono::NaiveDateTime,
 });
 
-camel_case_struct!(UsersEntity {
-    users: Vec<UserEntity>,
+camel_case_struct!(UsersResponse {
+    users: Vec<UserResponse>,
     total: i64,
     page: i64,
     per_page: i64,

@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
 use uuid::Uuid;
 
+use crate::features::user::domain::usecase::update_user::UpdateUserParams;
 use crate::{
     core::{
         error::APIError,
@@ -11,10 +12,10 @@ use crate::{
     features::user::{
         data::models::user::User,
         domain::{
-            entity::user_response::UserEntity,
-            entity::user_response::UsersEntity,
+            entity::user_response::UserResponse,
+            entity::user_response::UsersResponse,
             repository::user_repository::UserRepositoryImpl,
-            usecase::dto::{PaginationParams, RegisterParams, UpdateUserParams},
+            usecase::{list_user::PaginationParams, register::RegisterParams},
         },
     },
     schema::users::{self, dsl::*},
@@ -32,7 +33,7 @@ impl UserRepository {
 }
 
 impl UserRepositoryImpl for UserRepository {
-    fn create(&self, params: RegisterParams) -> AppResult<UserEntity> {
+    fn create(&self, params: RegisterParams) -> AppResult<UserResponse> {
         let mut user = User::from(params);
         let _ = user.hash_password();
         let email_register = user.email.clone();
@@ -40,7 +41,7 @@ impl UserRepositoryImpl for UserRepository {
         diesel::insert_into(users::table)
             .values(&user)
             .execute(&mut self.source.get().unwrap())
-            .map(|_| UserEntity {
+            .map(|_| UserResponse {
                 id: user.id,
                 name: user.name,
                 email: user.email,
@@ -60,11 +61,11 @@ impl UserRepositoryImpl for UserRepository {
             })
     }
 
-    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserEntity> {
+    fn find_user_by_id(&self, user_id: Uuid) -> AppResult<UserResponse> {
         users::table
             .filter(id.eq(user_id))
             .get_result::<User>(&mut self.source.get().unwrap())
-            .map(|user| UserEntity {
+            .map(|user| UserResponse {
                 id: user.id,
                 name: user.name,
                 email: user.email,
@@ -76,7 +77,7 @@ impl UserRepositoryImpl for UserRepository {
             .map_err(|_| APIError::UserNotFoundError)
     }
 
-    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserEntity> {
+    fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
         self.find_user_by_id(user_id)
             .map(|user| {
                 diesel::update(users.find(user.id))
@@ -87,7 +88,7 @@ impl UserRepositoryImpl for UserRepository {
                         updated_at.eq(Utc::now().naive_utc()),
                     ))
                     .get_result::<User>(&mut self.source.get().unwrap())
-                    .map(|updated_user| UserEntity {
+                    .map(|updated_user| UserResponse {
                         id: updated_user.id,
                         name: updated_user.name,
                         email: updated_user.email,
@@ -112,7 +113,7 @@ impl UserRepositoryImpl for UserRepository {
             .map_err(|_| APIError::UserNotFoundError)?
     }
 
-    fn users(&self, params: PaginationParams) -> AppResult<UsersEntity> {
+    fn users(&self, params: PaginationParams) -> AppResult<UsersResponse> {
         // Calculate the offset (skip `page * per_page` results)
         let page = params.page.unwrap_or(1);
         let per_page = params.per_page.unwrap_or(20);
@@ -128,10 +129,10 @@ impl UserRepositoryImpl for UserRepository {
             .limit(per_page)
             .offset(offset)
             .load::<User>(&mut self.source.get().unwrap())
-            .map(|list_user| UsersEntity {
+            .map(|list_user| UsersResponse {
                 users: list_user
                     .iter()
-                    .map(|user| UserEntity {
+                    .map(|user| UserResponse {
                         id: user.id,
                         name: user.name.clone(),
                         email: user.email.clone(),

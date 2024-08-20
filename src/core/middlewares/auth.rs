@@ -22,14 +22,14 @@ use crate::{
             data::models::auth_token::AuthToken,
             domain::repository::auth_repository::AuthRepositoryImpl,
         },
-        user::{
-            domain::entity::user_response::UserEntity, domain::usecase::interface::IUserService,
+        user::domain::{
+            entity::user_response::UserResponse, repository::user_repository::UserRepositoryImpl,
         },
     },
 };
 
 pub struct AuthMiddleware {
-    pub user: UserEntity,
+    pub user: UserResponse,
     pub login_session: Uuid,
 }
 
@@ -72,7 +72,7 @@ impl FromRequest for AuthMiddleware {
                 }
             })?;
 
-            let user = di.user_service.find_user_by_id(user_id).map_err(|_| {
+            let user = di.user_repository.find_user_by_id(user_id).map_err(|_| {
                 APIError::UnauthorizedMessage {
                     message: "User not found".to_string(),
                 }

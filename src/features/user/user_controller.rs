@@ -8,21 +8,15 @@ use crate::{
         response::{Diagnostic, PageInfo, ResponseBody},
         types::AppResult,
     },
-    features::user::domain::usecase::{
-        dto::{PaginationParams, RegisterParams, UpdateUserParams},
-        interface::IUserService,
-    },
+    features::user::domain::usecase::{delete_user::*, list_user::*, register::*, update_user::*},
 };
 
-pub async fn register(
+pub async fn register_controller(
     _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: Json<RegisterParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .register(params.0)
+    register(&state.di_container.user_repository, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
@@ -30,37 +24,30 @@ pub async fn get_user(auth: AuthMiddleware) -> AppResult<HttpResponse> {
     Ok(ResponseBody::success(Some(auth.user)).into())
 }
 
-pub async fn update_user(
+pub async fn update_user_controller(
     auth: AuthMiddleware,
     state: web::Data<AppState>,
     params: Json<UpdateUserParams>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .update_user(auth.user.id, params.0)
+    update_user(&state.di_container.user_repository, auth.user.id, params.0)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn delete_user(
+pub async fn delete_user_controller(
     auth: AuthMiddleware,
     state: web::Data<AppState>,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .user_service
-        .delete_user(auth.user.id)
-        .map(|data| {
-            ResponseBody::<()>::new(Diagnostic::new(STATUS_SUCCESS, data.as_str()), None).into()
-        })
+    delete_user(&state.di_container.user_repository, auth.user.id).map(|data| {
+        ResponseBody::<()>::new(Diagnostic::new(STATUS_SUCCESS, data.as_str()), None).into()
+    })
 }
 
-pub async fn users(
+pub async fn users_controller(
     _: GeneralMiddleware,
     state: web::Data<AppState>,
     params: web::Query<PaginationParams>,
 ) -> AppResult<HttpResponse> {
-    state.di_container.user_service.users(params.0).map(|data| {
+    list_user(&state.di_container.user_repository, params.0).map(|data| {
         ResponseBody::success_pagination(
             Some(data.users),
             PageInfo::new(data.page, data.per_page, data.total),

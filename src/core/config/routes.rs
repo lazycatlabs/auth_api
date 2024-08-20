@@ -36,7 +36,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                     )
                     .service(
                         web::resource("/session")
-                            .route(web::get().to(auth_controller::login_session)),
+                            .route(web::get().to(auth_controller::login_session_controller)),
                     )
                     .service(
                         web::resource("/password")

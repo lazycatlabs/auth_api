@@ -6,7 +6,7 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecases::{general_token::*, login::*, logout::*},
+    features::auth::domain::usecases::{general_token::*, login::*, login_session::*, logout::*},
 };
 
 use super::domain::usecases::{dto::UpdatePasswordParams, interface::IAuthService};
@@ -46,14 +46,11 @@ pub async fn logout_controller(
     .map(|_| ResponseBody::<()>::success(None).into())
 }
 
-pub async fn login_session(
+pub async fn login_session_controller(
     state: web::Data<AppState>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .login_session(auth.user.id)
+    login_session(&state.di_container.auth_repository, auth.user.id)
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 

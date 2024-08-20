@@ -6,12 +6,9 @@ use validator::Validate;
 use crate::{
     core::{error::APIError, types::AppResult},
     features::{
-        auth::{
-            data::models::login_history::LoginHistory,
-            domain::{
-                repository::auth_repository::AuthRepositoryImpl,
-                usecases::{dto::*, interface::IAuthService},
-            },
+        auth::domain::{
+            repository::auth_repository::AuthRepositoryImpl,
+            usecases::{dto::*, interface::IAuthService},
         },
         user::domain::repository::user_repository::UserRepositoryImpl,
     },
@@ -59,9 +56,9 @@ impl IAuthService for AuthService {
     //         .ok_or(APIError::Unauthorized)
     // }
 
-    fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
-        self.auth_repo.get_user_session(user)
-    }
+    // fn login_session(&self, user: Uuid) -> AppResult<Vec<LoginHistory>> {
+    //     self.auth_repo.get_user_session(user)
+    // }
 
     // fn general_token(&self, token: GeneralTokenParams) -> AppResult<AuthResponse> {
     //     self.auth_repo.general_token(token)

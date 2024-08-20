@@ -40,7 +40,7 @@ pub fn config_services(cfg: &mut web::ServiceConfig) {
                     )
                     .service(
                         web::resource("/password")
-                            .route(web::put().to(auth_controller::update_password)),
+                            .route(web::put().to(auth_controller::update_password_controller)),
                     ),
             )
             .service(

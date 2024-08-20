@@ -7,7 +7,10 @@ use crate::{
         data::models::{auth_token::AuthToken, login_history::LoginHistory},
         domain::{
             entity::auth_response::AuthResponse,
-            usecases::{dto::*, general_token::GeneralTokenParams, login::LoginParams},
+            usecases::{
+                general_token::GeneralTokenParams, login::LoginParams,
+                update_password::UpdatePasswordParams,
+            },
         },
     },
 };

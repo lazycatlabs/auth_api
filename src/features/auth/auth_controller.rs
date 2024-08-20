@@ -6,10 +6,10 @@ use crate::{
         response::ResponseBody,
         types::AppResult,
     },
-    features::auth::domain::usecases::{general_token::*, login::*, login_session::*, logout::*},
+    features::auth::domain::usecases::{
+        general_token::*, login::*, login_session::*, logout::*, update_password::*,
+    },
 };
-
-use super::domain::usecases::{dto::UpdatePasswordParams, interface::IAuthService};
 
 pub async fn general_token_controller(
     state: web::Data<AppState>,
@@ -54,14 +54,11 @@ pub async fn login_session_controller(
         .map(|data| ResponseBody::success(Some(data)).into())
 }
 
-pub async fn update_password(
+pub async fn update_password_controller(
     state: web::Data<AppState>,
     params: Json<UpdatePasswordParams>,
     auth: AuthMiddleware,
 ) -> AppResult<HttpResponse> {
-    state
-        .di_container
-        .auth_service
-        .update_password(auth.user.id, params.0)
+    update_password(&state.di_container.auth_repository, auth.user.id, params.0)
         .map(|_| ResponseBody::<()>::success(None).into())
 }

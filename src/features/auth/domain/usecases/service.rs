@@ -1,17 +1,10 @@
 use std::sync::Arc;
 
-use uuid::Uuid;
-use validator::Validate;
-
-use crate::{
-    core::{error::APIError, types::AppResult},
-    features::{
-        auth::domain::{
-            repository::auth_repository::AuthRepositoryImpl,
-            usecases::{dto::*, interface::IAuthService},
-        },
-        user::domain::repository::user_repository::UserRepositoryImpl,
+use crate::features::{
+    auth::domain::{
+        repository::auth_repository::AuthRepositoryImpl, usecases::interface::IAuthService,
     },
+    user::domain::repository::user_repository::UserRepositoryImpl,
 };
 
 #[derive(Clone)]
@@ -64,18 +57,18 @@ impl IAuthService for AuthService {
     //     self.auth_repo.general_token(token)
     // }
 
-    fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
-        params
-            .validate()
-            .map_err(|e| APIError::BadRequest {
-                message: e.to_string(),
-            })
-            .and_then(|_| {
-                (params.old_password != params.new_password)
-                    .then(|| self.auth_repo.update_password(user, params))
-                    .ok_or(APIError::BadRequest {
-                        message: "Old password and new password must be different".to_string(),
-                    })
-            })?
-    }
+    // fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
+    //     params
+    //         .validate()
+    //         .map_err(|e| APIError::BadRequest {
+    //             message: e.to_string(),
+    //         })
+    //         .and_then(|_| {
+    //             (params.old_password != params.new_password)
+    //                 .then(|| self.auth_repo.update_password(user, params))
+    //                 .ok_or(APIError::BadRequest {
+    //                     message: "Old password and new password must be different".to_string(),
+    //                 })
+    //         })?
+    // }
 }

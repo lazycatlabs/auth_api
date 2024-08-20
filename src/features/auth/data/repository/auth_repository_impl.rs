@@ -20,7 +20,10 @@ use crate::{
                 entity::auth_response::AuthResponse,
                 repository::auth_repository::AuthRepositoryImpl,
                 usecases::dto::*,
-                usecases::{general_token::GeneralTokenParams, login::LoginParams},
+                usecases::{
+                    general_token::GeneralTokenParams, login::LoginParams,
+                    update_password::UpdatePasswordParams,
+                },
             },
         },
         user::data::models::user::User,
@@ -147,7 +150,7 @@ impl AuthRepositoryImpl for AuthRepository {
             .map_err(|_| APIError::InternalError)
     }
 
-     fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
+    fn verify_token(&self, params: &TokenData<AuthToken>) -> AppResult<Uuid> {
         self.is_valid_login_session(params.claims.jti, params.claims.login_session)
             .then_some(params.claims.jti)
             .ok_or(APIError::Unauthorized)

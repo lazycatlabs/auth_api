@@ -2,8 +2,28 @@ use dotenv_codegen::dotenv;
 use reqwest::Client;
 use serde_json::json;
 
+use crate::camel_case_struct;
 use crate::core::{error::APIError, types::AppResult};
-use crate::features::general::domain::usecase::dto::SendEmailParams;
+
+camel_case_struct!(SendEmailParams {
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+   email: Option<String>,
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+  name: Option<String>,
+  #[validate(
+    required(message = "field is required"),
+    length(min = 1, message = "Can't be empty"),
+  )]
+  subject: Option<String>,
+  text_content: Option<String>,
+  html_content: Option<String>
+});
 
 pub async fn send_email(params: SendEmailParams) -> AppResult<String> {
     let client = Client::new();

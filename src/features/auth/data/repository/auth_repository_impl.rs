@@ -131,19 +131,19 @@ impl AuthRepositoryImpl for AuthRepository {
     }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {
-        let user =  users::table
-        .filter(user_id.eq(user))
-        .get_result::<User>(&mut self.source.get().unwrap())
-        .map_err(|_| APIError::UserNotFoundError)?;
+        let user = users::table
+            .filter(user_id.eq(user))
+            .get_result::<User>(&mut self.source.get().unwrap())
+            .map_err(|_| APIError::UserNotFoundError)?;
 
         let current_password = &params.old_password.unwrap_or("".to_string());
         let new_password_param = &params.new_password.unwrap_or("".to_string());
 
         // validate current password
         if !verify(current_password, &user.password).unwrap() {
-             return Err(APIError::BadRequest {
+            return Err(APIError::BadRequest {
                 message: "Invalid current password".to_string(),
-            })
+            });
         }
 
         let new_password = bcrypt::hash(new_password_param, DEFAULT_COST).unwrap();

@@ -121,11 +121,11 @@ impl AuthRepositoryImpl for AuthRepository {
     }
 
     fn is_valid_login_session(&self, user: Uuid, login_session: Uuid) -> bool {
-        login_history::table
+        !login_history::table
             .filter(login_history_user_id.eq(&user))
             .filter(login_history_id.eq(&login_session))
-            .execute(&mut self.source.get().unwrap())
-            .is_ok()
+            .load::<LoginHistory>(&mut self.source.get().unwrap())
+            .map_err(|_| APIError::InternalError).unwrap().is_empty()
     }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {

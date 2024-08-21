@@ -125,7 +125,9 @@ impl AuthRepositoryImpl for AuthRepository {
             .filter(login_history_user_id.eq(&user))
             .filter(login_history_id.eq(&login_session))
             .load::<LoginHistory>(&mut self.source.get().unwrap())
-            .map_err(|_| APIError::InternalError).unwrap().is_empty()
+            .map_err(|_| APIError::InternalError)
+            .unwrap()
+            .is_empty()
     }
 
     fn update_password(&self, user: Uuid, params: UpdatePasswordParams) -> AppResult<()> {

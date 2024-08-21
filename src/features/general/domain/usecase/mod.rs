@@ -1,1 +1,1 @@
-pub mod dto;
+pub mod mail_sender;

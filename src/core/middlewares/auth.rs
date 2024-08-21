@@ -68,7 +68,7 @@ impl FromRequest for AuthMiddleware {
 
             let user_id = di.auth_repository.verify_token(&token_data).map_err(|_| {
                 APIError::UnauthorizedMessage {
-                    message: "Token verification failed".to_string(),
+                    message: "The provided token has been revoked.".to_string(),
                 }
             })?;
 

@@ -40,9 +40,10 @@ impl UserRepositoryImpl for UserRepository {
         let _ = user.hash_password();
         let email_register = user.email.clone();
 
-        let allow_modified = env::var("ALLOW_MODIFIED").expect("DATABASE_URL not found.") == "true";
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
 
-        if !allow_modified {
+        if !is_allow_modified {
             // return mock user
             return Ok(UserResponse {
                 id: user.id,
@@ -95,11 +96,12 @@ impl UserRepositoryImpl for UserRepository {
     }
 
     fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
-        let allow_modified = env::var("ALLOW_MODIFIED").expect("DATABASE_URL not found.") == "true";
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
 
         self.find_user_by_id(user_id)
             .map(|user| {
-                if !allow_modified {
+                if !is_allow_modified {
                     // return mock response
                     return Ok(UserResponse {
                         id: user_id,
@@ -135,12 +137,16 @@ impl UserRepositoryImpl for UserRepository {
     }
 
     fn delete(&self, user_id: Uuid) -> AppResult<String> {
-        let allow_modified = env::var("ALLOW_MODIFIED").expect("DATABASE_URL not found.") == "true";
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
 
         self.find_user_by_id(user_id)
             .map(|user| {
-                if !allow_modified {
-                    return Ok(format!("User with id '{}' deleted successfully", user.email));
+                if !is_allow_modified {
+                    return Ok(format!(
+                        "User with id '{}' deleted successfully",
+                        user.email
+                    ));
                 }
                 diesel::delete(users.find(user.id))
                     .execute(&mut self.source.get().unwrap())

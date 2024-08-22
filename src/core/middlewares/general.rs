@@ -14,6 +14,7 @@ use crate::{
     features::auth::data::models::general_token::GeneralToken,
 };
 
+#[allow(dead_code)]
 pub struct GeneralMiddleware {
     pub data: TokenData<GeneralToken>,
 }

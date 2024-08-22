@@ -1,3 +1,5 @@
+use std::env;
+
 use chrono::Utc;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
@@ -37,6 +39,21 @@ impl UserRepositoryImpl for UserRepository {
         let mut user = User::from(params);
         let _ = user.hash_password();
         let email_register = user.email.clone();
+
+        let enable_register = env::var("ENABLE_REGISTER").expect("DATABASE_URL not found.") == "true";
+
+        if !enable_register {
+          // return mock user
+            return Ok(UserResponse {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              photo: user.photo,
+              verified: user.verified,
+              created_at: user.created_at,
+              updated_at: user.updated_at,
+          });
+        }
 
         diesel::insert_into(users::table)
             .values(&user)

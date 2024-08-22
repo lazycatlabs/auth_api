@@ -1,3 +1,5 @@
+use std::env;
+
 use chrono::Utc;
 use diesel::prelude::*;
 use diesel::{ExpressionMethods, RunQueryDsl};
@@ -37,6 +39,22 @@ impl UserRepositoryImpl for UserRepository {
         let mut user = User::from(params);
         let _ = user.hash_password();
         let email_register = user.email.clone();
+
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
+
+        if !is_allow_modified {
+            // return mock user
+            return Ok(UserResponse {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                photo: user.photo,
+                verified: user.verified,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+            });
+        }
 
         diesel::insert_into(users::table)
             .values(&user)
@@ -78,8 +96,24 @@ impl UserRepositoryImpl for UserRepository {
     }
 
     fn update_user(&self, user_id: Uuid, params: UpdateUserParams) -> AppResult<UserResponse> {
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
+
         self.find_user_by_id(user_id)
             .map(|user| {
+                if !is_allow_modified {
+                    // return mock response
+                    return Ok(UserResponse {
+                        id: user_id,
+                        name: params.name.unwrap_or("".to_string()),
+                        email: user.email.to_string(),
+                        photo: params.photo.unwrap_or("".to_string()),
+                        verified: params.verified.unwrap_or(false),
+                        created_at: user.created_at,
+                        updated_at: Utc::now().naive_utc(),
+                    });
+                }
+
                 diesel::update(users.find(user.id))
                     .set((
                         name.eq(params.name.unwrap_or(user.name)),
@@ -103,8 +137,17 @@ impl UserRepositoryImpl for UserRepository {
     }
 
     fn delete(&self, user_id: Uuid) -> AppResult<String> {
+        let is_allow_modified =
+            env::var("IS_SUPPORT_MODIFIED").expect("DATABASE_URL not found.") == "true";
+
         self.find_user_by_id(user_id)
             .map(|user| {
+                if !is_allow_modified {
+                    return Ok(format!(
+                        "User with id '{}' deleted successfully",
+                        user.email
+                    ));
+                }
                 diesel::delete(users.find(user.id))
                     .execute(&mut self.source.get().unwrap())
                     .map(|_| format!("User with email '{}' deleted successfully", user.email))

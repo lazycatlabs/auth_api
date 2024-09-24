@@ -1,7 +1,9 @@
 use actix_web::web;
 
 use crate::{
-    features::{auth::routes::auth_scope, general::routes::general_scope, user::routes::user_scope},
+    features::{
+        auth::routes::auth_scope, general::routes::general_scope, user::routes::user_scope,
+    },
     utils::handler::route_not_found,
 };
 

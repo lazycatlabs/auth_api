@@ -9,13 +9,9 @@ pub fn auth_scope() -> actix_web::Scope {
                 .route(web::post().to(auth_controller::general_token_controller)),
         )
         .service(
-            web::resource("/login")
-                .route(web::post().to(auth_controller::login_contoller)), // Fixed typo: login_contoller -> login_controller
+            web::resource("/login").route(web::post().to(auth_controller::login_contoller)), // Fixed typo: login_contoller -> login_controller
         )
-        .service(
-            web::resource("/logout")
-                .route(web::post().to(auth_controller::logout_controller)),
-        )
+        .service(web::resource("/logout").route(web::post().to(auth_controller::logout_controller)))
         .service(
             web::resource("/session")
                 .route(web::get().to(auth_controller::login_session_controller)),

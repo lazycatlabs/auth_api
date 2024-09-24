@@ -14,5 +14,5 @@ pub fn user_scope() -> actix_web::Scope {
   .service(
       web::resource("/all")
           .route(web::get().to(user_controller::users_controller)),
-  );
+  )
 }

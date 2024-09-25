@@ -2,7 +2,7 @@ use actix_web::{web, web::Json, HttpRequest, HttpResponse};
 
 use crate::{
     core::{
-        middlewares::{auth::AuthMiddleware, state::AppState},
+        middlewares::{auth::AuthMiddleware, general::GeneralMiddleware, state::AppState},
         response::ResponseBody,
         types::AppResult,
     },
@@ -23,7 +23,7 @@ pub async fn login_contoller(
     state: web::Data<AppState>,
     params: Json<LoginParams>,
     req: HttpRequest,
-    // _: GeneralMiddleware,
+    _: GeneralMiddleware,
 ) -> AppResult<HttpResponse> {
     let ip_addr = req.peer_addr().unwrap().ip().to_string();
     let new_params = LoginParams {

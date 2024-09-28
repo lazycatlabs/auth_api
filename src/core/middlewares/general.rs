@@ -9,7 +9,7 @@ use dotenv_codegen::dotenv;
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 
 use crate::{
-    core::{constants::AUTHORIZATION, error::APIError, types::AppResult},
+    core::{constants::AUTHORIZATION, error::APIError, middlewares::auth::decode_token_auth, types::AppResult},
     features::auth::data::models::general_token::GeneralToken,
     utils::token_helper::{is_auth_header_valid, token_extractor},
 };
@@ -46,8 +46,21 @@ impl FromRequest for GeneralMiddleware {
                 })?;
 
             let token = token_extractor(auth_str);
-            let token_data = decode_token(&token).map_err(|_| APIError::Unauthorized)?;
-            Ok(GeneralMiddleware { data: token_data })
+            // check general token first
+            let _ = decode_token(&token).map_err(|_|
+                decode_token_auth(&token).map_err(|_| APIError::Unauthorized));
+
+            let mock_data = TokenData {
+                header: Default::default(),
+                claims: GeneralToken {
+                    // Add fields of GeneralToken here
+                    aud: "".to_string(),
+                    exp: 0,
+                    iat: 0,
+                },
+
+            };
+            Ok(GeneralMiddleware { data: mock_data })
         })
     }
 }

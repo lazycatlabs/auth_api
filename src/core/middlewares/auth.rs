@@ -64,7 +64,7 @@ impl FromRequest for AuthMiddleware {
 
             let token = token_extractor(auth_str);
             let token_data =
-                decode_token(&token.to_string()).map_err(|_| APIError::Unauthorized)?;
+                decode_token_auth(&token.to_string()).map_err(|_| APIError::Unauthorized)?;
 
             let user_id = di.auth_repository.verify_token(&token_data).map_err(|_| {
                 APIError::UnauthorizedMessage {
@@ -86,7 +86,7 @@ impl FromRequest for AuthMiddleware {
     }
 }
 
-pub fn decode_token(jwt: &str) -> AppResult<TokenData<AuthToken>> {
+pub fn decode_token_auth(jwt: &str) -> AppResult<TokenData<AuthToken>> {
     let bytes_public_key = general_purpose::STANDARD
         .decode(dotenv!("ACCESS_TOKEN_PUBLIC_KEY"))
         .unwrap();

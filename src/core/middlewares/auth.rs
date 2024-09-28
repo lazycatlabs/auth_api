@@ -2,7 +2,6 @@ use std::future::Future;
 use std::pin::Pin;
 
 use actix_web::dev::Payload;
-use actix_web::http::header::HeaderValue;
 use actix_web::{FromRequest, HttpRequest};
 use base64::engine::general_purpose;
 use base64::Engine;
@@ -26,6 +25,7 @@ use crate::{
             entity::user_response::UserResponse, repository::user_repository::UserRepositoryImpl,
         },
     },
+    utils::token_helper::{is_auth_header_valid, token_extractor},
 };
 
 pub struct AuthMiddleware {
@@ -35,7 +35,7 @@ pub struct AuthMiddleware {
 
 impl FromRequest for AuthMiddleware {
     type Error = APIError;
-    type Future = Pin<Box<dyn Future<Output = Result<AuthMiddleware, Self::Error>>>>;
+    type Future = Pin<Box<dyn Future<Output=Result<AuthMiddleware, Self::Error>>>>;
 
     // act as auth middleware
     fn from_request(request: &HttpRequest, _: &mut Payload) -> Self::Future {
@@ -98,19 +98,5 @@ pub fn decode_token(jwt: &str) -> AppResult<TokenData<AuthToken>> {
         &DecodingKey::from_rsa_pem(decoded_public_key.as_bytes()).unwrap(),
         &validation,
     )
-    .map_err(|_e| APIError::Unauthorized)
-}
-
-pub fn token_extractor(auth: &str) -> String {
-    let bearer_str = auth.split(' ').collect::<Vec<&str>>();
-    let token_prefix = bearer_str[1].split('.').collect::<Vec<&str>>();
-
-    token_prefix[1..].join(".")
-}
-
-pub fn is_auth_header_valid(auth_header: &HeaderValue) -> bool {
-    if let Ok(auth_str) = auth_header.to_str() {
-        return auth_str.starts_with("bearer") || auth_str.starts_with("Bearer");
-    }
-    false
+        .map_err(|_e| APIError::Unauthorized)
 }

@@ -1,3 +1,7 @@
+<a href="https://s.id/standwithpalestine">
+  <img alt="We stand with Palestine" src="https://cdn.jsdelivr.net/gh/Safouene1/support-palestine-banner@master/banner-project.svg" width="100%" />
+</a>
+
 
 ![Auth API](https://github.com/lazycatlabs/auth_api/assets/1531684/4911962d-e8a2-49e3-a615-17edfa8ea913)
 
